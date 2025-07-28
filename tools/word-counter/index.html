@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字數計算工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>字數計算</h1>
+    </header>
+    <main>
+        <div class="counter-container">
+            <textarea id="text-input" placeholder="在這裡貼上或輸入您的文字..."></textarea>
+            <div id="stats-grid">
+                <div class="stat-item">
+                    <span class="label">總字數：</span>
+                    <span id="total-chars">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">數字：</span>
+                    <span id="numbers">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">行列（段落）數：</span>
+                    <span id="paragraphs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">中文字數：</span>
+                    <span id="chinese-chars">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">中文標點符號數：</span>
+                    <span id="chinese-puncs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">英文字數：</span>
+                    <span id="english-chars">0</span>
+                </div>
+                 <div class="stat-item">
+                    <span class="label">英文標點符號數：</span>
+                    <span id="english-puncs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">英文單詞數：</span>
+                    <span id="english-words">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">字節數 (Bytes)：</span>
+                    <span id="bytes">0</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html> 

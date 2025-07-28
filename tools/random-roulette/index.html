@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機輪盤</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>隨機輪盤</h1>
+    </header>
+    <main class="roulette-container">
+        <div class="roulette-wrapper">
+            <canvas id="roulette-canvas" width="500" height="500"></canvas>
+            <button id="spin-btn">開始</button>
+        </div>
+        <div class="options-wrapper">
+            <h2>選項</h2>
+            <textarea id="options-input" placeholder="每個選項一行">午餐&#10;晚餐&#10;火鍋&#10;牛排&#10;拉麵&#10;隨便</textarea>
+            <p class="note">修改選項後輪盤會自動更新</p>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html> 

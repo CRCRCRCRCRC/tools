@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    margin: 0;
+    text-align: center;
+}
+
+header {
+    padding: 60px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+header h1 {
+    font-size: 3.5em;
+    color: #343a40;
+    margin: 0;
+    text-shadow: none;
+}
+
+header p {
+    font-size: 1.2em;
+    color: #6c757d;
+    margin-top: 10px;
+}
+
+main {
+    padding: 40px 20px;
+}
+
+#tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.tool-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    text-decoration: none;
+    color: #212529;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tool-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tool-card h2 {
+    font-size: 1.8em;
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.tool-card p {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #495057;
+}
+
+footer {
+    padding: 20px;
+    margin-top: 40px;
+    background-color: #ffffff;
+    border-top: 1px solid #dee2e6;
+    font-size: 0.9em;
+    color: #6c757d;
+} 

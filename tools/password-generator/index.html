@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機密碼產生器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>隨機密碼產生器</h1>
+    </header>
+    <main>
+        <div class="generator-container">
+            <div class="result-container">
+                <span id="password-display">點擊按鈕產生密碼</span>
+                <button id="copy-btn">複製</button>
+            </div>
+            <div class="settings-container">
+                <div class="setting">
+                    <label for="length-slider">密碼長度: <span id="length-display">16</span></label>
+                    <input type="range" id="length-slider" min="8" max="64" value="16">
+                </div>
+                <div class="setting">
+                    <input type="checkbox" id="uppercase-check" checked>
+                    <label for="uppercase-check">包含大寫字母 (A-Z)</label>
+                </div>
+                <div class="setting">
+                    <input type="checkbox" id="lowercase-check" checked>
+                    <label for="lowercase-check">包含小寫字母 (a-z)</label>
+                </div>
+                <div class="setting">
+                    <input type="checkbox" id="numbers-check" checked>
+                    <label for="numbers-check">包含數字 (0-9)</label>
+                </div>
+                <div class="setting">
+                    <input type="checkbox" id="symbols-check" checked>
+                    <label for="symbols-check">包含特殊符號 (!@#$%^&*)</label>
+                </div>
+            </div>
+            <button id="generate-btn">產生密碼</button>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html> 

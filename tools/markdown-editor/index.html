@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 即時預覽編輯器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Markdown 即時預覽編輯器</h1>
+    </header>
+    <main class="editor-layout">
+        <div class="editor-pane">
+            <textarea id="markdown-input" placeholder="在這裡輸入 Markdown..."></textarea>
+        </div>
+        <div id="preview-pane" class="preview-pane">
+            <!-- 渲染後的 HTML 會顯示在這裡 -->
+        </div>
+    </main>
+    <!-- 引入 Marked.js 和 DOMPurify -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 

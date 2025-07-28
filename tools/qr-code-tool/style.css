@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #343a40;
+    font-size: 2.5em;
+    margin: 0;
+}
+
+main {
+    flex-grow: 1;
+    padding: 20px;
+    max-width: 1200px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tool-container {
+    display: flex;
+    gap: 20px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.tool-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tool-section h2 {
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.separator {
+    width: 1px;
+    background-color: #dee2e6;
+}
+
+#qr-text {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    resize: vertical;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+#qrcode-display {
+    width: 256px;
+    height: 256px;
+    margin: 0 auto 20px auto;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#upload-box {
+    width: 100%;
+    height: 256px;
+    border: 2px dashed #007bff;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    color: #495057;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+
+#upload-box:hover {
+    background-color: #e2e6ea;
+}
+
+#result-display {
+    width: 100%;
+    padding: 15px;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    word-break: break-all;
+    min-height: 50px;
+    box-sizing: border-box;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #218838;
+}
+
+@media (max-width: 900px) {
+    .tool-container {
+        flex-direction: column;
+    }
+    .separator {
+        height: 1px;
+        width: 100%;
+        margin: 20px 0;
+    }
+} 

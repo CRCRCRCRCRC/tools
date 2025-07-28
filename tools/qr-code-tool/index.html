@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code 工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>QR Code 產生器 & 辨識</h1>
+    </header>
+    <main>
+        <div class="tool-container">
+            <!-- Generator Section -->
+            <div class="tool-section">
+                <h2>產生 QR Code</h2>
+                <textarea id="qr-text" placeholder="輸入文字或網址來產生 QR Code..."></textarea>
+                <div id="qrcode-display"></div>
+                <a id="download-btn" class="button" style="display: none;">下載 QR Code</a>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator"></div>
+
+            <!-- Decoder Section -->
+            <div class="tool-section">
+                <h2>辨識 QR Code</h2>
+                <div id="upload-box">
+                    <p>點擊此處上傳圖片，或直接貼上圖片</p>
+                    <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
+                </div>
+                <div id="result-display">
+                    <p>辨識結果將顯示於此</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- 引入 QR Code 產生和辨識的函式庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
