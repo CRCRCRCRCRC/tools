@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖片壓縮工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>圖片壓縮工具</h1>
+    </header>
+    <main>
+        <div class="upload-section">
+            <div id="drop-zone" class="drop-zone">
+                <p>拖曳圖片到此處，或點擊選擇檔案</p>
+                <p class="hint">支援 JPG, PNG, WebP 格式</p>
+                <input type="file" id="file-input" accept="image/*" hidden>
+            </div>
+        </div>
+
+        <div id="editor-section" class="editor-section" style="display: none;">
+            <div class="preview-container">
+                <div class="preview-box">
+                    <h3>原始圖片</h3>
+                    <canvas id="original-canvas"></canvas>
+                    <p class="info">檔案大小：<span id="original-size">-</span></p>
+                    <p class="info">尺寸：<span id="original-dimensions">-</span></p>
+                </div>
+                <div class="preview-box">
+                    <h3>壓縮後</h3>
+                    <canvas id="compressed-canvas"></canvas>
+                    <p class="info">檔案大小：<span id="compressed-size">-</span></p>
+                    <p class="info">壓縮率：<span id="compression-ratio">-</span></p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>輸出格式：</label>
+                    <select id="format-select">
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="image/webp">WebP</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>品質：<span id="quality-value">80</span>%</label>
+                    <input type="range" id="quality-slider" min="1" max="100" value="80">
+                </div>
+
+                <div class="control-group">
+                    <label>最大寬度（像素）：</label>
+                    <input type="number" id="max-width" placeholder="不限制" min="1">
+                </div>
+
+                <div class="control-group">
+                    <label>最大高度（像素）：</label>
+                    <input type="number" id="max-height" placeholder="不限制" min="1">
+                </div>
+
+                <div class="button-group">
+                    <button id="download-btn" class="btn-primary">下載壓縮圖片</button>
+                    <button id="reset-btn" class="btn-secondary">重新選擇</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倒數計時器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>倒數計時器</h1>
+    </header>
+    <main>
+        <div class="add-countdown-section">
+            <h2>新增倒數事件</h2>
+            <div class="input-group">
+                <input type="text" id="event-name" placeholder="事件名稱（例如：期末考、生日、旅行）">
+            </div>
+            <div class="input-group">
+                <label>目標日期與時間：</label>
+                <input type="datetime-local" id="target-datetime">
+            </div>
+            <button id="add-btn" class="btn-primary">新增倒數</button>
+        </div>
+
+        <div class="countdown-list" id="countdown-list">
+            <!-- 倒數事件卡片會動態插入這裡 -->
+        </div>
+
+        <div id="empty-state" class="empty-state">
+            <p>還沒有任何倒數事件</p>
+            <p class="hint">在上方新增一個倒數事件吧！</p>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

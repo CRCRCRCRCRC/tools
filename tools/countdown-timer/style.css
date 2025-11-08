@@ -1,0 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+h1 {
+    color: #343a40;
+    font-size: 2.5em;
+    margin: 0;
+}
+
+main {
+    padding: 40px 20px;
+    max-width: 900px;
+    width: 100%;
+}
+
+.add-countdown-section {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.add-countdown-section h2 {
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.countdown-list {
+    display: grid;
+    gap: 20px;
+}
+
+.countdown-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.countdown-card.expired {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.countdown-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #007bff;
+}
+
+.countdown-card.expired h3 {
+    color: white;
+}
+
+.time-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.time-unit {
+    text-align: center;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.countdown-card.expired .time-unit {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.time-value {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #007bff;
+    display: block;
+}
+
+.countdown-card.expired .time-value {
+    color: white;
+}
+
+.time-label {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.countdown-card.expired .time-label {
+    color: rgba(255,255,255,0.9);
+}
+
+.target-date {
+    font-size: 0.95em;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.countdown-card.expired .target-date {
+    color: rgba(255,255,255,0.9);
+}
+
+.delete-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.expired-message {
+    font-size: 1.2em;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state p {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.empty-state .hint {
+    font-size: 1em;
+    color: #adb5bd;
+}
+
+@media (max-width: 600px) {
+    .time-display {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .time-value {
+        font-size: 2em;
+    }
+}
