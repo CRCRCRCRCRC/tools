@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const degrees = finalAngle * 180 / Math.PI + 90;
             const arcd = arc * 180 / Math.PI;
-            const index = Math.floor((360 - degrees % 360) / arcd);
-            
+            const index = Math.floor((360 - degrees % 360) / arcd) % options.length;
+
             alert(`恭喜！您抽中了：${options[index]}`);
 
             spinBtn.disabled = false;
