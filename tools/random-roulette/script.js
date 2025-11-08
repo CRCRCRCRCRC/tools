@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineWidth = 2;
 
         options.forEach((option, i) => {
-            const angle = startAngle + i * arc;
+            const angle = i * arc;  // 始終從 0 開始繪製
             ctx.fillStyle = colors[i % colors.length];
 
             ctx.beginPath();
@@ -46,19 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         canvas.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
         canvas.style.transform = `rotate(${finalAngle}rad)`;
-        
+
         setTimeout(() => {
-            const degrees = finalAngle * 180 / Math.PI + 90;
+            // 指針在頂部 (270度)，計算指針指向的選項
+            // 公式：(270度 - 旋轉角度) 對應的選項索引
+            const degrees = (finalAngle * 180 / Math.PI) % 360;
+            const pointerAngle = (270 - degrees + 360) % 360;
             const arcd = arc * 180 / Math.PI;
-            const index = Math.floor((360 - degrees % 360) / arcd) % options.length;
+            const index = Math.floor(pointerAngle / arcd) % options.length;
 
             alert(`恭喜！您抽中了：${options[index]}`);
 
             spinBtn.disabled = false;
-            // Reset transform for next spin
+            // 保持當前旋轉狀態
             canvas.style.transition = 'none';
-            canvas.style.transform = `rotate(${finalAngle % (2 * Math.PI)}rad)`;
-            startAngle = finalAngle % (2 * Math.PI);
+            startAngle = finalAngle;
 
         }, 5000);
     };
