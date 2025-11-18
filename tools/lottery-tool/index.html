@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽籤工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>抽籤工具</h1>
+    </header>
+    <main>
+        <div class="lottery-container">
+            <div class="input-section">
+                <h2>參與者名單</h2>
+                <textarea id="participants-input" placeholder="每行輸入一個名字&#10;例如：&#10;小明&#10;小華&#10;小美&#10;阿強&#10;阿忠">小明&#10;小華&#10;小美&#10;阿強&#10;阿忠&#10;阿花&#10;阿寶&#10;小雲</textarea>
+                <p class="count-info">總共 <span id="total-count">8</span> 人</p>
+            </div>
+
+            <div class="controls-section">
+                <h2>抽籤設定</h2>
+
+                <div class="mode-tabs">
+                    <button class="mode-btn active" data-mode="single">單人抽籤</button>
+                    <button class="mode-btn" data-mode="multiple">多人抽籤</button>
+                    <button class="mode-btn" data-mode="group">分組</button>
+                </div>
+
+                <div id="single-mode" class="mode-content">
+                    <p class="mode-description">隨機抽取一個人</p>
+                </div>
+
+                <div id="multiple-mode" class="mode-content" style="display: none;">
+                    <div class="input-group">
+                        <label>抽取人數：</label>
+                        <input type="number" id="draw-count" value="3" min="1">
+                    </div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="no-repeat" checked>
+                            不重複抽取
+                        </label>
+                    </div>
+                </div>
+
+                <div id="group-mode" class="mode-content" style="display: none;">
+                    <div class="input-group">
+                        <label>分成幾組：</label>
+                        <input type="number" id="group-count" value="2" min="2">
+                    </div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="even-groups" checked>
+                            盡量平均分組
+                        </label>
+                    </div>
+                </div>
+
+                <button id="draw-btn" class="btn-primary">開始抽籤</button>
+                <button id="reset-btn" class="btn-secondary">重置</button>
+            </div>
+        </div>
+
+        <div class="result-section" id="result-section" style="display: none;">
+            <h2>抽籤結果</h2>
+            <div id="result-display" class="result-display">
+                <!-- 結果會動態插入 -->
+            </div>
+            <div class="result-actions">
+                <button id="copy-result-btn" class="btn-action">複製結果</button>
+                <button id="draw-again-btn" class="btn-action">再抽一次</button>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h2>
+                歷史記錄
+                <button id="clear-history" class="btn-clear">清空</button>
+            </h2>
+            <div id="history-list" class="history-list">
+                <p class="placeholder">尚無歷史記錄</p>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

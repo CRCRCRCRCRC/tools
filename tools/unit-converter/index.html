@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>單位轉換器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>單位轉換器</h1>
+    </header>
+    <main>
+        <div class="converter-container">
+            <div class="category-tabs">
+                <button class="tab-btn active" data-category="length">長度</button>
+                <button class="tab-btn" data-category="weight">重量</button>
+                <button class="tab-btn" data-category="temperature">溫度</button>
+                <button class="tab-btn" data-category="area">面積</button>
+                <button class="tab-btn" data-category="volume">體積</button>
+                <button class="tab-btn" data-category="time">時間</button>
+                <button class="tab-btn" data-category="data">數據</button>
+                <button class="tab-btn" data-category="speed">速度</button>
+            </div>
+
+            <div class="converter-box">
+                <div class="input-section">
+                    <label>從：</label>
+                    <div class="input-row">
+                        <input type="number" id="from-value" value="1" step="any">
+                        <select id="from-unit"></select>
+                    </div>
+                </div>
+
+                <div class="swap-btn-container">
+                    <button id="swap-btn" class="swap-btn">⇅</button>
+                </div>
+
+                <div class="input-section">
+                    <label>到：</label>
+                    <div class="input-row">
+                        <input type="number" id="to-value" readonly>
+                        <select id="to-unit"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-reference" id="quick-reference">
+                <!-- 快速參考表會動態插入 -->
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

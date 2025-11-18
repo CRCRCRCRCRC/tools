@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機數產生器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>隨機數產生器</h1>
+    </header>
+    <main>
+        <div class="generator-container">
+            <div class="settings">
+                <h2>設定</h2>
+
+                <div class="input-group">
+                    <label>最小值：</label>
+                    <input type="number" id="min-value" value="1" step="any">
+                </div>
+
+                <div class="input-group">
+                    <label>最大值：</label>
+                    <input type="number" id="max-value" value="100" step="any">
+                </div>
+
+                <div class="input-group">
+                    <label>生成數量：</label>
+                    <input type="number" id="count" value="1" min="1" max="1000">
+                </div>
+
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="integer-only" checked>
+                        僅限整數
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="unique-only">
+                        不重複（僅適用於整數）
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="sort-results">
+                        自動排序結果
+                    </label>
+                </div>
+
+                <button id="generate-btn" class="btn-primary">生成隨機數</button>
+            </div>
+
+            <div class="results-section">
+                <h2>結果</h2>
+                <div id="result-display" class="result-display">
+                    <p class="placeholder">點擊「生成隨機數」開始</p>
+                </div>
+
+                <div class="stats" id="stats" style="display: none;">
+                    <div class="stat-item">
+                        <span class="stat-label">總和：</span>
+                        <span class="stat-value" id="sum">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">平均：</span>
+                        <span class="stat-value" id="average">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最小：</span>
+                        <span class="stat-value" id="min">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最大：</span>
+                        <span class="stat-value" id="max">-</span>
+                    </div>
+                </div>
+
+                <button id="copy-btn" class="btn-secondary" style="display: none;">複製結果</button>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h2>
+                歷史記錄
+                <button id="clear-history" class="btn-clear">清空</button>
+            </h2>
+            <div id="history-list" class="history-list">
+                <p class="placeholder">尚無歷史記錄</p>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
