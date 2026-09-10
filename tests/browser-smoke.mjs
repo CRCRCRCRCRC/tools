@@ -8,6 +8,7 @@ import { readFile, writeFile, mkdir, mkdtemp, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { imageToolsCases } from './image-tools.cases.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const chromePath = process.env.CHROME_PATH || [
@@ -107,17 +108,17 @@ try {
     await cdp('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloads });
     await viewport(1440);
     await navigate();
-    assert.equal(await evaluate('document.querySelectorAll(".tool-card").length'), 7);
+    assert.equal(await evaluate('document.querySelectorAll(".tool-card").length'), 12);
     await noOverflow('home desktop');
     await screenshot('home-desktop', true);
     await click('[data-category="image"].filter');
-    assert.equal(await evaluate('document.querySelectorAll(".tool-card:not([hidden])").length'), 2);
-    await input('#tool-search', '  IMAGE  ');
+    assert.equal(await evaluate('document.querySelectorAll(".tool-card:not([hidden])").length'), 7);
+    await input('#tool-search', '  stretch  ');
     assert.equal(await evaluate('document.querySelectorAll(".tool-card:not([hidden])").length'), 1);
     await input('#tool-search', 'no-such-tool');
     assert.equal(await evaluate('document.querySelector("#empty-state").hidden'), false);
     await click('#reset-search');
-    assert.equal(await evaluate('document.querySelectorAll(".tool-card:not([hidden])").length'), 7);
+    assert.equal(await evaluate('document.querySelectorAll(".tool-card:not([hidden])").length'), 12);
     await viewport(390, 844);
     await noOverflow('home mobile');
     await screenshot('home-mobile', true);
@@ -196,6 +197,8 @@ try {
     await evaluate(`(async()=>{const blob=await(await fetch('data:image/png;base64,${fixtureData}')).blob();const dt=new DataTransfer();dt.items.add(new File([blob],'dropped.png',{type:'image/png'}));document.querySelector('.preview-panel').dispatchEvent(new DragEvent('drop',{dataTransfer:dt,bubbles:true,cancelable:true}));})()`);
     await until(() => evaluate('document.querySelector("#file-name").textContent === "dropped.png"'), 'drop');
     console.log('PASS: file upload, PNG/JPG/WebP downloads, exact dimensions, stretched pixels, transparency, corrupt file, paste, drag/drop.');
+
+    await imageToolsCases({ cdp, evaluate, click, input, navigate, viewport, screenshot, noOverflow, until, temporary, downloads });
 
     const routes = ['word-counter', 'markdown-editor', 'code-tester', 'password-generator', 'qr-code-tool', 'random-roulette'];
     for (const route of routes) {

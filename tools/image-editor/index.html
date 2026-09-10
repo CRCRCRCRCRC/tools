@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="裁切、旋轉、拉伸、模糊與壓縮。 免費使用，圖片只在本機處理。">
+    <meta name="theme-color" content="#f7f8f4">
+    <title>圖片編輯整合 — 萬能工具箱</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <link rel="stylesheet" href="../../site.css">
+    <link rel="stylesheet" href="../../assets/image-tools/editor.css">
+</head>
+<body class="tool-page" data-image-mode="studio">
+    <a class="skip-link" href="#main-content">跳至主要內容</a>
+    <header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+        <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱</a>
+        <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+    </nav></header>
+    <div class="tool-intro"><div class="tool-title-row"><span class="tool-icon green"><svg aria-hidden="true"><use href="../../assets/icons.svg#sliders"></use></svg></span><h1>圖片編輯整合</h1></div></div>
+    <main id="main-content" class="tool-main photo-tool">
+        <div class="photo-topline"><span><svg aria-hidden="true"><use href="../../assets/icons.svg#shield"></use></svg>圖片僅在本機處理。</span></div>
+        <input id="photo-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" multiple hidden>
+        <div class="photo-layout">
+                <section class="photo-preview panel" aria-label="圖片預覽">
+                    <div class="photo-toolbar"><h2>預覽</h2><div class="toolbar-actions"><button id="undo-edit" class="icon-button" aria-label="復原" title="復原" disabled>↶</button><button id="redo-edit" class="icon-button" aria-label="重做" title="重做" disabled>↷</button><button id="reset-edit" class="text-action" disabled>重設</button><button id="add-photos" class="text-action" hidden>加入圖片</button></div></div>
+                    <div id="photo-drop" class="photo-drop">
+                        <span class="drop-symbol"><svg aria-hidden="true"><use href="../../assets/icons.svg#image"></use></svg></span><h2>加入多張圖片</h2>
+                        <button id="choose-photos" class="button primary"><svg aria-hidden="true"><use href="../../assets/icons.svg#upload"></use></svg>選擇圖片</button>
+                        <p class="file-note">PNG、JPG、WebP、GIF、BMP · 每張 50 MB</p>
+                        <button id="demo-photo" class="text-action">使用範例圖片 ↗</button>
+                    </div>
+                    <div id="photo-loaded" hidden>
+                        <div class="preview-switches"><div class="segmented" role="group" aria-label="預覽模式"><button id="show-edited" aria-pressed="true" class="selected">編輯結果</button><button id="show-source" aria-pressed="false">原圖</button></div><span id="display-dimensions"></span></div>
+                        <p id="selection-hint" class="selection-hint" hidden></p>
+                        <div class="photo-stage"><canvas id="photo-canvas" role="img" aria-label="圖片預覽" tabindex="0"></canvas></div>
+                        <div class="photo-meta"><span id="selected-name"></span><span id="source-dimensions"></span></div>
+                        <div id="result-summary" class="result-summary" aria-live="polite"><span id="before-size"></span><span aria-hidden="true">→</span><strong id="after-size">計算中…</strong><span id="size-change"></span><span id="result-extra"></span></div>
+                    </div>
+                </section>
+            <aside class="photo-settings panel" aria-label="編輯設定">
+                <div class="edit-tabs" role="group" aria-label="編輯功能"><button type="button" data-tab="crop" aria-label="裁切與旋轉" aria-pressed="true">裁切</button><button type="button" data-tab="resize" aria-pressed="false">尺寸</button><button type="button" data-tab="blur" aria-pressed="false">模糊</button><button type="button" data-tab="compress" aria-pressed="false">壓縮</button></div>
+
+                    <fieldset id="edit-controls" disabled>
+                        <legend class="sr-only">圖片編輯設定</legend>
+                        <section id="panel-crop" class="edit-panel" data-panel="crop">
+                            <h2>裁切／旋轉</h2>
+                            <label class="field-label" for="crop-ratio">裁切比例</label>
+                            <select id="crop-ratio"><option value="free">自由</option><option value="original">原圖比例</option><option value="1">1 : 1</option><option value="1.3333333333333333">4 : 3</option><option value="1.7777777777777777">16 : 9</option><option value="0.5625">9 : 16</option></select>
+                            <div class="pair-actions"><button type="button" id="select-crop" class="button secondary">框選裁切</button><button type="button" id="reset-crop" class="button secondary">恢復全圖</button></div>
+                            <div class="field-grid crop-fields">
+                                <label>X <input id="crop-x" type="number" min="0" step="1" value="0" aria-label="裁切起點 X"></label>
+                                <label>Y <input id="crop-y" type="number" min="0" step="1" value="0" aria-label="裁切起點 Y"></label>
+                                <label>寬度 <input id="crop-width" type="number" min="1" step="1" value="800" aria-label="裁切寬度"></label>
+                                <label>高度 <input id="crop-height" type="number" min="1" step="1" value="600" aria-label="裁切高度"></label>
+                            </div>
+                            <div class="rotation-actions"><button type="button" id="rotate-left" class="button secondary">↶ 左轉 90°</button><button type="button" id="rotate-right" class="button secondary">↷ 右轉 90°</button><button type="button" id="flip-x" class="button secondary" aria-pressed="false">水平翻轉</button><button type="button" id="flip-y" class="button secondary" aria-pressed="false">垂直翻轉</button></div>
+                        </section>
+                        <section id="panel-resize" class="edit-panel" data-panel="resize">
+                            <h2>尺寸／拉伸</h2>
+                            <label class="check-field"><input type="checkbox" id="resize-enabled">調整尺寸</label>
+                            <div class="field-grid"><label>寬度（px）<input id="resize-width" type="number" min="1" max="8192" step="1" value="800"></label><label>高度（px）<input id="resize-height" type="number" min="1" max="8192" step="1" value="600"></label></div>
+                            <label class="check-field"><input type="checkbox" id="resize-lock" checked>鎖定比例</label>
+                            <label class="slider-field" for="resize-x">水平 <output id="resize-x-value">100%</output><input id="resize-x" type="range" min="10" max="300" value="100"></label>
+                            <label class="slider-field" for="resize-y">垂直 <output id="resize-y-value">100%</output><input id="resize-y" type="range" min="10" max="300" value="100"></label>
+                            <label class="check-field"><input type="checkbox" id="resize-smoothing" checked>平滑縮放</label>
+                        </section>
+                        <section id="panel-blur" class="edit-panel" data-panel="blur">
+                            <h2>模糊</h2>
+                            <label class="field-label" for="blur-mode">範圍</label>
+                            <select id="blur-mode"><option value="whole">整張圖片</option><option value="regions">局部框選</option></select>
+                            <label class="slider-field" for="blur-radius">強度 <output id="blur-value">0</output><input id="blur-radius" type="range" min="0" max="60" step="1" value="0"></label>
+                            <div id="region-actions" hidden><button type="button" id="select-blur" class="button secondary">新增模糊區域</button><div id="region-list"></div><button type="button" id="clear-regions" class="text-action">清除全部區域</button></div>
+                        </section>
+                        <section id="panel-compress" class="edit-panel" data-panel="compress">
+                            <h2>壓縮</h2>
+                            <label class="field-label" for="target-kb">目標容量（KB）</label>
+                            <input id="target-kb" type="number" min="1" max="51200" step="1" placeholder="留空表示不限制">
+                            <label class="check-field"><input type="checkbox" id="auto-reduce" checked>必要時縮小尺寸</label>
+                        </section>
+                        <section class="export-panel">
+                            <h2>匯出</h2>
+                            <label class="field-label" for="output-format">格式</label>
+                            <select id="output-format"><option value="image/png">PNG（透明背景）</option><option value="image/jpeg">JPG（白色背景）</option><option value="image/webp">WebP（透明背景）</option></select>
+                            <label id="quality-field" class="slider-field" for="output-quality">品質 <output id="quality-value">85%</output><input id="output-quality" type="range" min="5" max="100" value="85"></label>
+                        </section>
+                    </fieldset>
+                    <div class="download-panel"><p id="validation-error" class="validation-error" role="alert" hidden></p><button id="save-image" class="button primary" disabled><svg aria-hidden="true"><use href="../../assets/icons.svg#download"></use></svg>下載圖片</button></div>
+            </aside>
+                <section id="queue-panel" class="queue-panel panel" aria-labelledby="queue-title">
+                    <div class="photo-toolbar"><h2 id="queue-title">圖片清單 <span id="queue-count">0</span></h2><button id="clear-queue" class="text-action" disabled>清空</button></div>
+                    <p class="queue-note">最多 40 張、合計 200 MB。可逐張編輯或套用相同設定。</p>
+                    <div id="photo-list" class="photo-list"></div>
+                    <div class="batch-controls"><button id="apply-all" class="button secondary" disabled>套用至全部</button><button id="process-all" class="button primary" disabled>處理全部</button><button id="cancel-batch" class="button secondary" hidden>取消</button><button id="save-zip" class="button secondary" disabled>下載 ZIP</button></div>
+                    <progress id="batch-progress" value="0" max="1" hidden aria-label="批次處理進度"></progress><p id="batch-status" class="queue-note" role="status"></p>
+                </section>
+        </div>
+        <p id="photo-status" class="photo-status" role="status" aria-live="polite"></p>
+        <details class="photo-limits"><summary>格式與尺寸限制</summary><p>來源最多 5,000 萬像素；輸出每邊最多 8,192 px、總共 2,400 萬像素。超出輸出上限會等比例縮小。GIF 匯出為靜態圖片。ZIP 最多 200 MB。</p></details>
+        <noscript><p>請啟用 JavaScript 以使用圖片工具。</p></noscript>
+    </main>
+    <footer class="site-footer"><a class="footer-brand" href="../../index.html">萬能工具箱</a><a href="../../index.html#all-tools">所有工具 →</a></footer>
+    <script type="module" src="../../assets/image-tools/editor.js"></script>
+</body>
+</html>

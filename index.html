@@ -25,7 +25,7 @@
                 <p class="hero-description">免費線上工具，開啟即可使用。</p>
                 <a class="button primary hero-cta" href="#all-tools">所有工具 <svg aria-hidden="true"><use href="assets/icons.svg#arrow-down"></use></svg></a>
             </div>
-            <a class="hero-art" href="tools/image-stretcher/index.html" aria-label="試試最新的圖片拉伸／壓扁工具">
+            <a class="hero-art" href="tools/image-editor/index.html" aria-label="開啟圖片編輯整合">
                 <div class="art-grid"></div>
                 <div class="art-window">
                     <div class="window-bar"><span class="window-dots"><i></i><i></i><i></i></span><svg aria-hidden="true"><use href="assets/icons.svg#sliders"></use></svg></div>
@@ -36,16 +36,36 @@
                     <div class="window-bottom"><span>1 : 1</span><svg aria-hidden="true"><use href="assets/icons.svg#arrow-right"></use></svg><span class="new-ratio">3 : 2</span></div>
                 </div>
                 <span class="art-sticker"><svg aria-hidden="true"><use href="assets/icons.svg#sparkles"></use></svg>新工具<span>↗</span></span>
-                <span class="art-caption">圖片拉伸／壓扁 <svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span>
+                <span class="art-caption">圖片編輯整合 <svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span>
             </a>
         </section>
         <section id="all-tools" class="catalog" aria-labelledby="catalog-title">
             <div class="catalog-heading"><div><h2 id="catalog-title">所有工具</h2></div><label class="search-box"><svg aria-hidden="true"><use href="assets/icons.svg#search"></use></svg><input id="tool-search" type="search" placeholder="搜尋工具…" aria-label="搜尋工具" autocomplete="off"><kbd aria-hidden="true">/</kbd></label></div>
-            <div class="catalog-toolbar"><div class="filters" role="group" aria-label="依類別篩選"><button class="filter active" data-category="all" aria-pressed="true">全部工具 <span>7</span></button><button class="filter" data-category="image" aria-pressed="false">圖片與設計</button><button class="filter" data-category="text" aria-pressed="false">文字與編輯</button><button class="filter" data-category="developer" aria-pressed="false">開發工具</button><button class="filter" data-category="daily" aria-pressed="false">生活小幫手</button></div></div>
-            <p id="search-status" class="sr-only" role="status" aria-live="polite">顯示全部 7 個工具</p>
+            <div class="catalog-toolbar"><div class="filters" role="group" aria-label="依類別篩選"><button class="filter active" data-category="all" aria-pressed="true">全部工具 <span>12</span></button><button class="filter" data-category="image" aria-pressed="false">圖片與設計</button><button class="filter" data-category="text" aria-pressed="false">文字與編輯</button><button class="filter" data-category="developer" aria-pressed="false">開發工具</button><button class="filter" data-category="daily" aria-pressed="false">生活小幫手</button></div></div>
+            <p id="search-status" class="sr-only" role="status" aria-live="polite">顯示全部 12 個工具</p>
             <div id="tools-grid">
-                <a href="tools/image-stretcher/index.html" class="tool-card featured" data-category="image" data-keywords="圖片 拉伸 壓扁 縮放 尺寸 寬高 image resize stretch png jpg webp">
-                    <div class="card-top"><span class="tool-icon green"><svg aria-hidden="true"><use href="assets/icons.svg#stretch"></use></svg></span><span class="new-badge">NEW</span><span class="card-arrow"><svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span></div>
+                <a href="tools/image-editor/index.html" class="tool-card featured" data-category="image" data-keywords="image editor 整合 編輯 裁切 旋轉 拉伸 壓扁 模糊 壓縮 批次">
+                    <div class="card-top"><span class="tool-icon green"><svg aria-hidden="true"><use href="assets/icons.svg#sliders"></use></svg></span><span class="new-badge">整合版</span><span class="card-arrow"><svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span></div>
+                    <h3>圖片編輯整合</h3><p>裁切、旋轉、拉伸、模糊與壓縮。</p>
+                </a>
+                <a href="tools/image-compressor/index.html" class="tool-card" data-category="image" data-keywords="image compress 壓縮 容量 品質 kb jpg png webp">
+                    <div class="card-top"><span class="tool-icon mint"><svg aria-hidden="true"><use href="assets/icons.svg#download"></use></svg></span><span class="card-arrow"><svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span></div>
+                    <h3>圖片壓縮</h3><p>調整品質或目標容量，預覽壓縮結果。</p>
+                </a>
+                <a href="tools/image-blur/index.html" class="tool-card" data-category="image" data-keywords="image blur 模糊 局部 遮罩">
+                    <div class="card-top"><span class="tool-icon lavender"><svg aria-hidden="true"><use href="assets/icons.svg#image"></use></svg></span><span class="card-arrow"><svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span></div>
+                    <h3>圖片模糊化</h3><p>整張或局部模糊，自訂模糊強度。</p>
+                </a>
+                <a href="tools/image-cropper/index.html" class="tool-card" data-category="image" data-keywords="image crop rotate 裁切 旋轉 翻轉">
+                    <div class="card-top"><span class="tool-icon peach"><svg aria-hidden="true"><use href="assets/icons.svg#stretch"></use></svg></span><span class="card-arrow"><svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span></div>
+                    <h3>圖片裁切／旋轉</h3><p>框選裁切、旋轉與翻轉圖片。</p>
+                </a>
+                <a href="tools/image-batch/index.html" class="tool-card" data-category="image" data-keywords="image batch 批次 多張 zip 壓縮 縮放">
+                    <div class="card-top"><span class="tool-icon blue"><svg aria-hidden="true"><use href="assets/icons.svg#image"></use></svg></span><span class="card-arrow"><svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span></div>
+                    <h3>批次圖片處理</h3><p>多張圖片一起調整，打包下載。</p>
+                </a>
+                <a href="tools/image-stretcher/index.html" class="tool-card" data-category="image" data-keywords="圖片 拉伸 壓扁 縮放 尺寸 寬高 image resize stretch png jpg webp">
+                    <div class="card-top"><span class="tool-icon green"><svg aria-hidden="true"><use href="assets/icons.svg#stretch"></use></svg></span><span class="card-arrow"><svg aria-hidden="true"><use href="assets/icons.svg#arrow-up-right"></use></svg></span></div>
                     <h3>圖片拉伸／壓扁</h3><p>調整圖片寬高，即時預覽與下載。</p>
                 </a>
                 <a href="tools/word-counter/index.html" class="tool-card" data-category="text" data-keywords="字數 計算 中英文 統計 word count">

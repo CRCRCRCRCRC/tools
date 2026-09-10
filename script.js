@@ -4,6 +4,7 @@ const cards = [...document.querySelectorAll('.tool-card')];
 const emptyState = document.getElementById('empty-state');
 const status = document.getElementById('search-status');
 let category = 'all';
+filters[0].querySelector('span').textContent = cards.length;
 
 function filterTools() {
     const query = search.value.trim().toLocaleLowerCase();
