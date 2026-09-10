@@ -6,7 +6,6 @@ main.roulette-container {
     padding: 25px 0;
     flex-wrap:wrap
 }
-
 .roulette-wrapper {
     position: relative;
     width: min(460px,100%);
@@ -14,14 +13,12 @@ main.roulette-container {
     flex-shrink: 0;
     filter:drop-shadow(0 10px 20px #365e4710)
 }
-
 #roulette-canvas {
     width: 100%;
     height: 100%;
     display: block;
     transition:transform 5s cubic-bezier(.25,.1,.25,1)
 }
-
 .roulette-wrapper:after {
     content: "";
     position: absolute;
@@ -33,7 +30,6 @@ main.roulette-container {
     border-top: 27px solid #365e47;
     filter:drop-shadow(0 2px 2px #263b3030)
 }
-
 #spin-btn {
     position: absolute;
     top: 50%;
@@ -49,12 +45,10 @@ main.roulette-container {
     font-weight: 700;
     box-shadow:0 3px 16px #263b3020
 }
-
 #spin-btn:hover:not(:disabled) {
     background: var(--green);
     color:#fff
 }
-
 .options-wrapper {
     background: #fff;
     border: 1px solid var(--border);
@@ -63,37 +57,34 @@ main.roulette-container {
     width: 330px;
     max-width:100%
 }
-
 .options-wrapper h2 {
     font-size: 17px;
     margin-bottom: 16px;
     color:var(--green)
 }
-
 #options-input {
     height:290px
 }
-
 .options-wrapper .note {
     margin: 12px 0 0;
-    font-size: 11px;
+    font-size: 16px;
     text-align:center
 }
 
 @media(max-width:600px) {
-    main.roulette-container {
+main.roulette-container {
         gap: 28px;
         padding:10px 0
     }
-    .roulette-wrapper {
+.roulette-wrapper {
         width:min(360px,100%)
     }
-    .options-wrapper {
+.options-wrapper {
         width:100%
     }
-    #spin-btn {
+#spin-btn {
         width: 70px;
         height: 70px;
-        font-size:17px
+        font-size: 17px
     }
 }

@@ -34,6 +34,11 @@
         status.classList.toggle('error', error);
     }
 
+    function previewHint(message) {
+        $('preview-help').textContent = message;
+        $('preview-help').hidden = !message;
+    }
+
     function updateAvailability() {
         settings.disabled = !source || loading || exporting;
         downloadButton.disabled = !source || !validDimensions || loading || exporting;
@@ -41,11 +46,6 @@
         $('change-file').disabled = exporting;
         $('choose-file').disabled = exporting;
         $('load-sample').disabled = exporting;
-        $('download-hint').textContent = !source ? '選擇圖片後，就能開始調整'
-            : loading ? '正在讀取圖片…'
-            : exporting ? '正在產生圖片，請稍候…'
-            : !validDimensions ? '請先修正圖片尺寸'
-            : '圖片不會上傳，下載後即可使用';
     }
 
     function syncSliders() {
@@ -82,7 +82,7 @@
             schedulePreview();
         } else {
             $('output-size').textContent = '請修正尺寸';
-            $('preview-help').textContent = '尺寸無效，目前保留上一次有效的預覽。';
+            previewHint('尺寸無效，顯示上次預覽。');
         }
         updateAvailability();
         return validDimensions;
@@ -131,7 +131,7 @@
         $('preview-dimensions').textContent = width.toLocaleString() + ' × ' + height.toLocaleString() + ' px';
         preview.setAttribute('aria-label', (showOriginal ? '原始圖片' : '調整後圖片') + '，' + width + ' × ' + height + ' 像素');
         if (validDimensions) {
-            $('preview-help').textContent = showOriginal ? '正在查看原圖，下載仍使用調整後的尺寸。' : '預覽會自動縮放以完整顯示，下載使用指定尺寸。';
+            previewHint(showOriginal ? '下載使用調整後的尺寸。' : '');
         }
     }
 
@@ -190,7 +190,6 @@
             $('drop-zone').hidden = true;
             $('loaded-preview').hidden = false;
             $('change-file').hidden = false;
-            $('empty-preview-tag').hidden = true;
             lockRatio.checked = false;
             $('export-format').value = 'image/png';
             $('quality-field').hidden = true;
@@ -199,8 +198,8 @@
             setDimensions(width, height);
             selectView(false);
             announce(width !== img.naturalWidth || height !== img.naturalHeight
-                ? '圖片已載入；已等比例縮小至可匯出的尺寸範圍。'
-                : '圖片已載入。試著拉動滑桿，或直接輸入寬度與高度。');
+                ? '已縮小至可匯出的尺寸。'
+                : '');
         } catch (error) {
             if (version === loadVersion) announce(error.message || '讀取圖片失敗，請重新選擇。', true);
         } finally {
@@ -282,7 +281,7 @@
                 downloadUrls.delete(url);
             }, 60000);
             announce(blob.type !== format ? '此瀏覽器不支援所選格式，已改以 PNG 下載。'
-                : '圖片已準備完成：' + width + ' × ' + height + ' px，請查看瀏覽器的下載項目。');
+                : '已下載 ' + width + ' × ' + height + ' px 圖片。');
         } catch (error) {
             announce(error.message || '下載失敗，請降低輸出尺寸後重試。', true);
         } finally {
@@ -322,7 +321,7 @@
             setDimensions(Math.max(1, Math.round(source.naturalWidth * Number(button.dataset.width))),
                 Math.max(1, Math.round(source.naturalHeight * Number(button.dataset.height))));
             selectView(false);
-            announce(validDimensions ? '已套用快速變換，可繼續微調寬度與高度。' : '');
+            announce('');
         });
     });
     $('reset-image').addEventListener('click', () => {
@@ -330,8 +329,7 @@
         lockRatio.checked = false;
         setDimensions(...fittedOriginal());
         selectView(false);
-        announce(targetWidth === source.naturalWidth && targetHeight === source.naturalHeight
-            ? '已還原圖片的原始尺寸。' : '已還原為可匯出範圍內的原始比例。');
+            announce('');
     });
     $('view-result').addEventListener('click', () => selectView(false));
     $('view-original').addEventListener('click', () => selectView(true));

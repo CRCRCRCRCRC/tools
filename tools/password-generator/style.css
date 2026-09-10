@@ -1,7 +1,6 @@
 .tool-main {
     max-width:650px
 }
-
 .generator-container {
     background: #fff;
     padding: 32px;
@@ -9,7 +8,6 @@
     border-radius: 18px;
     box-shadow:var(--shadow)
 }
-
 .result-container {
     display: flex;
     justify-content: space-between;
@@ -21,36 +19,31 @@
     margin-bottom: 30px;
     gap:16px
 }
-
 #password-display {
     word-break: break-all;
     font-family: ui-monospace,Consolas,monospace;
-    font-size: 19px;
+    font-size: 22px;
     user-select: all;
-    line-height:1.6
+    line-height: 1.6;
 }
-
 #copy-btn {
     flex-shrink: 0;
-    min-height: 37px;
+    min-height: 44px;
     padding: 7px 12px;
-    font-size:12px
+    font-size: 16px;
 }
-
 .settings-container {
     display: flex;
     flex-direction: column;
     gap: 17px;
     margin-bottom:28px
 }
-
 .setting {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size:13px
+    font-size: 18px;
 }
-
 .setting:first-child {
     display: grid;
     grid-template-columns: 1fr;
@@ -58,14 +51,12 @@
     padding-bottom: 21px;
     border-bottom:1px solid var(--border)
 }
-
 .setting:first-child label {
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-weight:600
 }
-
 #length-display {
     font-size: 18px;
     color: var(--green);
@@ -73,25 +64,23 @@
     border-radius: 6px;
     padding:2px 10px
 }
-
 #length-slider {
     width: 100%;
     margin:0
 }
-
 #generate-btn {
     width:100%
 }
 
 @media(max-width:600px) {
-    .generator-container {
+.generator-container {
         padding:23px
     }
-    .result-container {
+.result-container {
         padding: 15px;
         gap:10px
     }
-    #password-display {
-        font-size:16px
-    }
+#password-display {
+    font-size: 22px;
+}
 }

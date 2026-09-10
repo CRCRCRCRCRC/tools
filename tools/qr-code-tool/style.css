@@ -3,7 +3,6 @@
     grid-template-columns: 1fr 1fr;
     gap:24px
 }
-
 .tool-section {
     display: flex;
     flex-direction: column;
@@ -14,23 +13,19 @@
     padding: 26px;
     min-width:0
 }
-
 .tool-section h2 {
     align-self: flex-start;
     font-size: 17px;
     margin-bottom: 20px;
     color:var(--green)
 }
-
 .separator {
     display:none
 }
-
 #qr-text {
     min-height: 115px;
     margin-bottom:25px
 }
-
 #qrcode-display {
     width: 278px;
     min-height: 278px;
@@ -43,26 +38,22 @@
     margin: 0 auto 22px;
     padding:10px
 }
-
 #qrcode-display:empty:after {
-    content: "輸入文字，QR Code 就會出現在這裡";
+    content: "QR Code 預覽";
     color: #8c9781;
     text-align: center;
-    font-size: 12px;
-    max-width:160px
+    font-size: 16px;
+    max-width: 160px;
 }
-
 #qrcode-display img,#qrcode-display canvas {
     max-width: 100%;
     height:auto
 }
-
 #download-btn {
     background: var(--green);
     color: #fff;
-    font-size:13px
+    font-size: 16px
 }
-
 #upload-box {
     width: 100%;
     min-height: 256px;
@@ -76,15 +67,13 @@
     cursor: pointer;
     background: #f5f8f0;
     color: #728166;
-    font-size: 13px;
+    font-size: 16px;
     margin-bottom: 20px;
     transition:background .2s
 }
-
 #upload-box:hover {
     background:#eaf1e2
 }
-
 #result-display {
     width: 100%;
     padding: 17px;
@@ -93,19 +82,18 @@
     border-radius: 9px;
     overflow-wrap: anywhere;
     min-height: 65px;
-    font-size:13px
+    font-size: 16px
 }
-
 #result-display p {
     margin-bottom:0
 }
 
 @media(max-width:760px) {
-    .tool-container {
+.tool-container {
         grid-template-columns: 1fr;
         gap:18px
     }
-    .tool-section {
+.tool-section {
         padding:22px
     }
 }

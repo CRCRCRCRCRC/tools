@@ -16,7 +16,6 @@ function filterTools() {
         if (visible) count++;
     });
     emptyState.hidden = count !== 0;
-    document.querySelector('.catalog-end').hidden = Boolean(query) || category !== 'all';
     status.textContent = '顯示 ' + count + ' 個工具';
 }
 filters.forEach(button => button.addEventListener('click', () => {

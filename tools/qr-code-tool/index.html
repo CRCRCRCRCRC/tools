@@ -12,19 +12,18 @@
 <body class="tool-page">
 <a class="skip-link" href="#main-content">跳至主要內容</a>
     <header class="site-header"><nav class="site-nav" aria-label="主要導覽">
-        <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱<span class="brand-en">TOOLBOX</span></a>
+        <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱</a>
         <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
     </nav></header>
     <div class="tool-intro">
-        <nav class="breadcrumb" aria-label="麵包屑"><a href="../../index.html">首頁</a><span aria-hidden="true">/</span><span>圖片與設計</span><span aria-hidden="true">/</span><span aria-current="page">QR Code 工具</span></nav>
-        <div class="tool-title-row"><span class="tool-icon mint"><svg aria-hidden="true"><use href="../../assets/icons.svg#qr"></use></svg></span><div><h1>QR Code 工具</h1><p class="tool-subtitle">把文字與網址變成 QR Code，也能上傳圖片，輕鬆讀取內容。</p></div></div>
+        <div class="tool-title-row"><span class="tool-icon mint"><svg aria-hidden="true"><use href="../../assets/icons.svg#qr"></use></svg></span><div><h1>QR Code 工具</h1></div></div>
     </div>
     <main id="main-content" class="tool-main">
         <div class="tool-container">
             <!-- Generator Section -->
             <div class="tool-section">
                 <h2>產生 QR Code</h2>
-                <textarea id="qr-text" aria-label="要產生 QR Code 的文字或網址" placeholder="輸入文字或網址來產生 QR Code..."></textarea>
+                <textarea id="qr-text" aria-label="要產生 QR Code 的文字或網址" placeholder="輸入文字或網址"></textarea>
                 <div id="qrcode-display"></div>
                 <a id="download-btn" class="button" style="display: none;">下載 QR Code</a>
             </div>
@@ -36,16 +35,16 @@
             <div class="tool-section">
                 <h2>辨識 QR Code</h2>
                 <div id="upload-box" role="button" tabindex="0" aria-label="上傳或貼上 QR Code 圖片">
-                    <p>點擊此處上傳圖片，或直接貼上圖片</p>
+                    <p>上傳或貼上圖片</p>
                     <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
                 </div>
                 <div id="result-display">
-                    <p>辨識結果將顯示於此</p>
+                    <p>尚無辨識結果</p>
                 </div>
             </div>
         </div>
     </main>
-    <footer class="site-footer"><div><a class="footer-brand" href="../../index.html">萬能工具箱</a><span>讓每一天，更輕鬆一點。</span></div><a class="back-link" href="../../index.html#all-tools">探索更多工具 <svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-right"></use></svg></a></footer>
+    <footer class="site-footer"><div><a class="footer-brand" href="../../index.html">萬能工具箱</a></div><a class="back-link" href="../../index.html#all-tools">所有工具 <svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-right"></use></svg></a></footer>
     <!-- 引入 QR Code 產生和辨識的函式庫 -->
     <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
