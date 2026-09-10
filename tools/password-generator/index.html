@@ -3,18 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>隨機密碼產生器</title>
+    <title>隨機密碼產生器 — 萬能工具箱</title>
+    <meta name="theme-color" content="#f7f8f4">
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <link rel="stylesheet" href="../../site.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <header>
-        <h1>隨機密碼產生器</h1>
-    </header>
-    <main>
+<body class="tool-page">
+<a class="skip-link" href="#main-content">跳至主要內容</a>
+    <header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+        <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱<span class="brand-en">TOOLBOX</span></a>
+        <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+    </nav></header>
+    <div class="tool-intro">
+        <nav class="breadcrumb" aria-label="麵包屑"><a href="../../index.html">首頁</a><span aria-hidden="true">/</span><span>生活小幫手</span><span aria-hidden="true">/</span><span aria-current="page">隨機密碼產生器</span></nav>
+        <div class="tool-title-row"><span class="tool-icon yellow"><svg aria-hidden="true"><use href="../../assets/icons.svg#key"></use></svg></span><div><h1>隨機密碼產生器</h1><p class="tool-subtitle">自訂長度與字元組合，一鍵產生密碼，少一件需要傷腦筋的事。</p></div></div>
+    </div>
+    <main id="main-content" class="tool-main">
         <div class="generator-container">
             <div class="result-container">
                 <span id="password-display">點擊按鈕產生密碼</span>
-                <button id="copy-btn">複製</button>
+                <button id="copy-btn" class="button secondary">複製</button>
             </div>
             <div class="settings-container">
                 <div class="setting">
@@ -38,9 +47,10 @@
                     <label for="symbols-check">包含特殊符號 (!@#$%^&*)</label>
                 </div>
             </div>
-            <button id="generate-btn">產生密碼</button>
+            <button id="generate-btn" class="button primary">產生密碼</button>
         </div>
     </main>
+    <footer class="site-footer"><div><a class="footer-brand" href="../../index.html">萬能工具箱</a><span>讓每一天，更輕鬆一點。</span></div><a class="back-link" href="../../index.html#all-tools">探索更多工具 <svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-right"></use></svg></a></footer>
     <script src="script.js"></script>
 </body>
-</html> 
+</html>

@@ -1,110 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
-
-body {
-    font-family: 'Noto Sans TC', sans-serif;
-    background-color: #f8f9fa;
-    color: #212529;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-}
-
-header {
-    text-align: center;
-    padding: 20px;
-    width: 100%;
-    background-color: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-    box-sizing: border-box;
-}
-
-h1 {
-    color: #343a40;
-    font-size: 2.5em;
-    margin: 0;
-}
-
-main {
-    flex-grow: 1;
-    padding: 20px;
-    max-width: 600px;
-    width: 100%;
-    box-sizing: border-box;
+.tool-main {
+    max-width:650px
 }
 
 .generator-container {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    background: #fff;
+    padding: 32px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow:var(--shadow)
 }
 
 .result-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #e9ecef;
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: 1.2em;
+    background: #edf3e7;
+    border: 1px solid #dce6d3;
+    border-radius: 11px;
+    padding: 19px;
+    margin-bottom: 30px;
+    gap:16px
 }
 
 #password-display {
     word-break: break-all;
+    font-family: ui-monospace,Consolas,monospace;
+    font-size: 19px;
     user-select: all;
+    line-height:1.6
 }
 
 #copy-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 15px;
-    transition: background-color 0.2s;
-}
-
-#copy-btn:hover {
-    background-color: #0056b3;
+    flex-shrink: 0;
+    min-height: 37px;
+    padding: 7px 12px;
+    font-size:12px
 }
 
 .settings-container {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 17px;
+    margin-bottom:28px
 }
 
 .setting {
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size:13px
 }
 
-input[type="range"] {
-    flex-grow: 1;
+.setting:first-child {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding-bottom: 21px;
+    border-bottom:1px solid var(--border)
+}
+
+.setting:first-child label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight:600
+}
+
+#length-display {
+    font-size: 18px;
+    color: var(--green);
+    background: var(--soft-green);
+    border-radius: 6px;
+    padding:2px 10px
+}
+
+#length-slider {
+    width: 100%;
+    margin:0
 }
 
 #generate-btn {
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(45deg, #28a745, #218838);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.2em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    width:100%
 }
 
-#generate-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
-} 
+@media(max-width:600px) {
+    .generator-container {
+        padding:23px
+    }
+    .result-container {
+        padding: 15px;
+        gap:10px
+    }
+    #password-display {
+        font-size:16px
+    }
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="免費圖片拉伸／壓扁工具。獨立調整圖片寬高、百分比與像素，即時預覽並下載 PNG、JPG 或 WebP，全程在瀏覽器內處理。">
+    <meta name="theme-color" content="#f7f8f4">
+    <title>圖片拉伸／壓扁工具 — 萬能工具箱</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <link rel="stylesheet" href="../../site.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="tool-page">
+    <a class="skip-link" href="#main-content">跳至主要內容</a>
+    <header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+        <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱<span class="brand-en">TOOLBOX</span></a>
+        <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+    </nav></header>
+    <div class="tool-intro">
+        <nav class="breadcrumb" aria-label="麵包屑"><a href="../../index.html">首頁</a><span aria-hidden="true">/</span><span>圖片與設計</span><span aria-hidden="true">/</span><span aria-current="page">圖片拉伸／壓扁</span></nav>
+        <div class="tool-title-row"><span class="tool-icon green"><svg aria-hidden="true"><use href="../../assets/icons.svg#stretch"></use></svg></span><div><h1>圖片拉伸／壓扁工具</h1><p class="tool-subtitle">自由調整圖片寬高與比例，拉長、壓扁，讓畫面剛剛好。</p></div></div>
+    </div>
+    <main id="main-content" class="tool-main">
+        <div class="privacy-note"><svg aria-hidden="true"><use href="../../assets/icons.svg#shield"></use></svg>你的圖片只在瀏覽器內處理，不會上傳到伺服器。<span>安心調整，自由創作。</span></div>
+        <div class="image-workspace">
+            <section class="preview-panel panel" aria-labelledby="preview-title">
+                <div class="workspace-toolbar"><h2 id="preview-title"><svg aria-hidden="true"><use href="../../assets/icons.svg#image"></use></svg>圖片工作區</h2><button id="change-file" class="text-button" hidden><svg aria-hidden="true"><use href="../../assets/icons.svg#upload"></use></svg>更換圖片</button><span id="empty-preview-tag" class="preview-tag">從一張圖片開始</span></div>
+                <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" hidden>
+                <div id="drop-zone" class="drop-zone">
+                    <div class="upload-illustration" aria-hidden="true"><div class="paper-back"></div><div class="paper-front"><svg aria-hidden="true"><use href="../../assets/icons.svg#image"></use></svg><span class="upload-plus">＋</span></div></div>
+                    <h3>把圖片放進來，試試新比例。</h3>
+                    <p>拖曳圖片到這裡，或直接貼上剪貼簿中的圖片</p>
+                    <button id="choose-file" class="button primary"><svg aria-hidden="true"><use href="../../assets/icons.svg#upload"></use></svg>選擇圖片</button>
+                    <span class="file-types">PNG、JPG、WebP、GIF、BMP · 最大 50 MB</span>
+                    <div class="sample-action">手邊沒有圖片？<button id="load-sample" class="text-button">用範例玩看看 <svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-up-right"></use></svg></button></div>
+                </div>
+                <div id="loaded-preview" hidden>
+                    <div class="preview-controls"><div class="view-toggle" role="group" aria-label="預覽模式"><button id="view-result" aria-pressed="true" class="selected">調整後</button><button id="view-original" aria-pressed="false">原圖</button></div><span id="preview-dimensions"></span></div>
+                    <div class="canvas-stage"><canvas id="preview-canvas" role="img" aria-label="圖片調整預覽"></canvas></div>
+                    <div class="file-info"><span id="file-name"></span><span id="file-size"></span></div>
+                </div>
+                <div class="preview-bottom"><span class="status-dot"></span><span id="preview-help">拉長、壓扁，或等比例縮放，都由你決定。</span><span class="live-badge">即時預覽</span></div>
+            </section>
+            <aside class="settings-panel panel" aria-labelledby="settings-title">
+                <div class="workspace-toolbar"><h2 id="settings-title"><svg aria-hidden="true"><use href="../../assets/icons.svg#sliders"></use></svg>調整設定</h2><button id="reset-image" class="text-button" disabled><svg aria-hidden="true"><use href="../../assets/icons.svg#reset"></use></svg>重設</button></div>
+                <fieldset id="image-settings" disabled>
+                    <legend class="sr-only">圖片尺寸與輸出設定</legend>
+                    <div class="settings-section">
+                        <div class="section-label"><h3>圖片尺寸</h3><span>自由調整寬高</span></div>
+                        <div class="dimension-fields">
+                            <label for="width-input">寬度<span class="number-field"><input id="width-input" type="number" min="1" max="8192" step="1" value="800" inputmode="numeric" aria-describedby="dimension-help dimension-error"><span>px</span></span></label>
+                            <span class="dimension-times" aria-hidden="true">×</span>
+                            <label for="height-input">高度<span class="number-field"><input id="height-input" type="number" min="1" max="8192" step="1" value="600" inputmode="numeric" aria-describedby="dimension-help dimension-error"><span>px</span></span></label>
+                        </div>
+                        <label class="lock-option"><input type="checkbox" id="lock-ratio"><svg aria-hidden="true"><use href="../../assets/icons.svg#link"></use></svg>鎖定原始比例<span>等比例縮放</span></label>
+                        <div class="slider-field"><label for="width-scale">水平縮放 <output id="width-percent" for="width-scale">100%</output></label><input id="width-scale" type="range" min="10" max="300" value="100" step="1"><div class="range-labels"><span>壓窄</span><span>拉寬</span></div></div>
+                        <div class="slider-field"><label for="height-scale">垂直縮放 <output id="height-percent" for="height-scale">100%</output></label><input id="height-scale" type="range" min="10" max="300" value="100" step="1"><div class="range-labels"><span>壓扁</span><span>拉長</span></div></div>
+                        <p id="dimension-help" class="limit-note">每邊 1–8,192 px，總像素上限 2,400 萬。</p>
+                        <p id="dimension-error" class="inline-error" role="alert" hidden></p>
+                    </div>
+                    <div class="settings-section">
+                        <div class="section-label"><h3>快速變換</h3><span>一鍵換個比例</span></div>
+                        <div class="preset-grid"><button type="button" data-width="1.5" data-height="1">↔ 水平拉伸 <span>150%</span></button><button type="button" data-width="1" data-height="1.5">↕ 垂直拉伸 <span>150%</span></button><button type="button" data-width="0.5" data-height="1">↔ 水平壓窄 <span>50%</span></button><button type="button" data-width="1" data-height="0.5">↕ 垂直壓扁 <span>50%</span></button></div>
+                    </div>
+                    <div class="settings-section export-settings">
+                        <div class="section-label"><h3>匯出圖片</h3><span>保留每一個細節</span></div>
+                        <label class="format-field" for="export-format">檔案格式<select id="export-format"><option value="image/png">PNG · 保留透明背景</option><option value="image/jpeg">JPG · 白色背景</option><option value="image/webp">WebP · 保留透明背景</option></select></label>
+                        <div id="quality-field" class="slider-field" hidden><label for="export-quality">圖片品質 <output id="quality-value" for="export-quality">92%</output></label><input id="export-quality" type="range" min="10" max="100" value="92"></div>
+                        <label class="smoothing-option"><input type="checkbox" id="image-smoothing" checked>平滑縮放<span>取消可保留像素感</span></label>
+                    </div>
+                </fieldset>
+                <div class="download-area"><div class="export-summary"><span>輸出尺寸</span><strong id="output-size">尚未選擇圖片</strong></div><button id="download-image" class="button primary" disabled><svg aria-hidden="true"><use href="../../assets/icons.svg#download"></use></svg>下載圖片</button><p id="download-hint">選擇圖片後，就能開始調整</p></div>
+            </aside>
+        </div>
+        <p id="image-status" class="image-status" role="status" aria-live="polite"></p>
+        <div class="how-it-works"><div><span>01</span><h3>放入圖片</h3><p>上傳、拖放或貼上，選你順手的方式。</p></div><div><span>02</span><h3>調整比例</h3><p>拉動滑桿或輸入寬高，效果即時看見。</p></div><div><span>03</span><h3>下載完成</h3><p>選擇格式，儲存你調整後的圖片。</p></div></div>
+        <p class="image-footnote">GIF 會轉成靜態圖片；放大圖片不會增加原圖的細節。</p>
+        <noscript><p>請啟用 JavaScript，以使用圖片預覽與下載功能。</p></noscript>
+    </main>
+    <footer class="site-footer"><div><a class="footer-brand" href="../../index.html">萬能工具箱</a><span>讓每一天，更輕鬆一點。</span></div><a class="back-link" href="../../index.html#all-tools">探索更多工具 <svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-right"></use></svg></a></footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

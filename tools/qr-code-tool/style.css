@@ -1,142 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
-
-body {
-    font-family: 'Noto Sans TC', sans-serif;
-    background-color: #f8f9fa;
-    color: #212529;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-}
-
-header {
-    text-align: center;
-    padding: 20px;
-    width: 100%;
-    background-color: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-    box-sizing: border-box;
-}
-
-h1 {
-    color: #343a40;
-    font-size: 2.5em;
-    margin: 0;
-}
-
-main {
-    flex-grow: 1;
-    padding: 20px;
-    max-width: 1200px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
 .tool-container {
-    display: flex;
-    gap: 20px;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap:24px
 }
 
 .tool-section {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px;
+    min-width:0
 }
 
 .tool-section h2 {
-    color: #007bff;
-    margin-top: 0;
+    align-self: flex-start;
+    font-size: 17px;
     margin-bottom: 20px;
+    color:var(--green)
 }
 
 .separator {
-    width: 1px;
-    background-color: #dee2e6;
+    display:none
 }
 
 #qr-text {
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    resize: vertical;
-    margin-bottom: 20px;
-    box-sizing: border-box;
+    min-height: 115px;
+    margin-bottom:25px
 }
 
 #qrcode-display {
-    width: 256px;
-    height: 256px;
-    margin: 0 auto 20px auto;
-    border: 1px solid #dee2e6;
-    padding: 10px;
-    box-sizing: border-box;
+    width: 278px;
+    min-height: 278px;
+    max-width: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin: 0 auto 22px;
+    padding:10px
+}
+
+#qrcode-display:empty:after {
+    content: "輸入文字，QR Code 就會出現在這裡";
+    color: #8c9781;
+    text-align: center;
+    font-size: 12px;
+    max-width:160px
+}
+
+#qrcode-display img,#qrcode-display canvas {
+    max-width: 100%;
+    height:auto
+}
+
+#download-btn {
+    background: var(--green);
+    color: #fff;
+    font-size:13px
 }
 
 #upload-box {
     width: 100%;
-    height: 256px;
-    border: 2px dashed #007bff;
-    border-radius: 8px;
+    min-height: 256px;
+    border: 1.5px dashed #b1c4a0;
+    border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    padding: 24px;
     cursor: pointer;
-    background-color: #f8f9fa;
-    color: #495057;
+    background: #f5f8f0;
+    color: #728166;
+    font-size: 13px;
     margin-bottom: 20px;
-    transition: background-color 0.3s;
+    transition:background .2s
 }
 
 #upload-box:hover {
-    background-color: #e2e6ea;
+    background:#eaf1e2
 }
 
 #result-display {
     width: 100%;
-    padding: 15px;
-    background-color: #e9ecef;
-    border-radius: 6px;
-    word-break: break-all;
-    min-height: 50px;
-    box-sizing: border-box;
+    padding: 17px;
+    background: #f0f4e9;
+    border: 1px solid #e0e8d7;
+    border-radius: 9px;
+    overflow-wrap: anywhere;
+    min-height: 65px;
+    font-size:13px
 }
 
-.button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    text-align: center;
-    transition: background-color 0.3s;
+#result-display p {
+    margin-bottom:0
 }
 
-.button:hover {
-    background-color: #218838;
-}
-
-@media (max-width: 900px) {
+@media(max-width:760px) {
     .tool-container {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        gap:18px
     }
-    .separator {
-        height: 1px;
-        width: 100%;
-        margin: 20px 0;
+    .tool-section {
+        padding:22px
     }
-} 
+}

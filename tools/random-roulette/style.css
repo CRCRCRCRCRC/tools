@@ -1,122 +1,99 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
-
-body {
-    font-family: 'Noto Sans TC', sans-serif;
-    background-color: #f8f9fa;
-    color: #212529;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-}
-
-header {
-    text-align: center;
-    padding: 20px;
-    width: 100%;
-    background-color: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-    box-sizing: border-box;
-}
-
-h1 {
-    color: #343a40;
-    font-size: 2.5em;
-    margin: 0;
-}
-
 main.roulette-container {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    align-items: flex-start;
-    gap: 40px;
-    padding: 20px;
-    width: 100%;
-    max-width: 1000px;
-    box-sizing: border-box;
+    align-items: center;
+    gap: 55px;
+    padding: 25px 0;
+    flex-wrap:wrap
 }
 
 .roulette-wrapper {
     position: relative;
-    width: 500px;
-    height: 500px;
+    width: min(460px,100%);
+    aspect-ratio: 1;
+    flex-shrink: 0;
+    filter:drop-shadow(0 10px 20px #365e4710)
 }
 
 #roulette-canvas {
-    transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); /* 旋轉動畫 */
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition:transform 5s cubic-bezier(.25,.1,.25,1)
 }
 
-.roulette-wrapper::after {
-    content: '▼';
+.roulette-wrapper:after {
+    content: "";
     position: absolute;
-    top: -5px;
+    top: -8px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 40px;
-    color: #dc3545;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-top: 27px solid #365e47;
+    filter:drop-shadow(0 2px 2px #263b3030)
 }
 
 #spin-btn {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px;
-    height: 100px;
+    transform: translate(-50%,-50%);
+    width: 84px;
+    height: 84px;
     border-radius: 50%;
-    background-color: #ffffff;
-    border: 8px solid #f8f9fa;
-    color: #007bff;
-    font-size: 1.8em;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    transition: background-color 0.3s, color 0.3s;
+    border: 7px solid #f7f8f4;
+    background: #fff;
+    color: var(--green);
+    font-size: 20px;
+    font-weight: 700;
+    box-shadow:0 3px 16px #263b3020
 }
 
-#spin-btn:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-#spin-btn:disabled {
-    background-color: #e9ecef;
-    color: #6c757d;
-    cursor: not-allowed;
+#spin-btn:hover:not(:disabled) {
+    background: var(--green);
+    color:#fff
 }
 
 .options-wrapper {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    width: 300px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: 330px;
+    max-width:100%
 }
 
 .options-wrapper h2 {
-    margin-top: 0;
-    color: #007bff;
-    text-align: center;
+    font-size: 17px;
+    margin-bottom: 16px;
+    color:var(--green)
 }
 
 #options-input {
-    width: 100%;
-    height: 300px;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    resize: vertical;
-    box-sizing: border-box;
+    height:290px
 }
 
-.note {
-    font-size: 0.9em;
-    color: #6c757d;
-    text-align: center;
-    margin-top: 10px;
-} 
+.options-wrapper .note {
+    margin: 12px 0 0;
+    font-size: 11px;
+    text-align:center
+}
+
+@media(max-width:600px) {
+    main.roulette-container {
+        gap: 28px;
+        padding:10px 0
+    }
+    .roulette-wrapper {
+        width:min(360px,100%)
+    }
+    .options-wrapper {
+        width:100%
+    }
+    #spin-btn {
+        width: 70px;
+        height: 70px;
+        font-size:17px
+    }
+}

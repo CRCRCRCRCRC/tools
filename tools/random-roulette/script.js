@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const optionsInput = document.getElementById('options-input');
     const spinBtn = document.getElementById('spin-btn');
 
-    const colors = ["#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8", "#6f42c1", "#fd7e14", "#20c997"];
+    const colors = ["#55795c", "#829b70", "#b68f69", "#8c87a5", "#709b94", "#b68288", "#ae9d65", "#6b89a0"];
     let options = [];
     let startAngle = 0;
     let arc = 0;

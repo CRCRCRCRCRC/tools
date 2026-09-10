@@ -68,6 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners for Decoding ---
     uploadBox.addEventListener('click', () => qrFileInput.click());
+    uploadBox.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            qrFileInput.click();
+        }
+    });
     qrFileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
             decodeQRCode(e.target.files[0]);

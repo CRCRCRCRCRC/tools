@@ -3,24 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown 即時預覽編輯器</title>
+    <title>Markdown 編輯器 — 萬能工具箱</title>
+    <meta name="theme-color" content="#f7f8f4">
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <link rel="stylesheet" href="../../site.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <header>
-        <h1>Markdown 即時預覽編輯器</h1>
-    </header>
-    <main class="editor-layout">
-        <div class="editor-pane">
+<body class="tool-page">
+<a class="skip-link" href="#main-content">跳至主要內容</a>
+    <header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+        <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱<span class="brand-en">TOOLBOX</span></a>
+        <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+    </nav></header>
+    <div class="tool-intro">
+        <nav class="breadcrumb" aria-label="麵包屑"><a href="../../index.html">首頁</a><span aria-hidden="true">/</span><span>文字與編輯</span><span aria-hidden="true">/</span><span aria-current="page">Markdown 編輯器</span></nav>
+        <div class="tool-title-row"><span class="tool-icon lavender"><svg aria-hidden="true"><use href="../../assets/icons.svg#markdown"></use></svg></span><div><h1>Markdown 編輯器</h1><p class="tool-subtitle">一邊寫作，一邊預覽。把腦中的想法，變成排版漂亮的文件。</p></div></div>
+    </div>
+    <main id="main-content" class="tool-main editor-layout">
+        <div class="editor-pane"><label class="editor-label" for="markdown-input">MARKDOWN <span>輸入文字</span></label>
             <textarea id="markdown-input" placeholder="在這裡輸入 Markdown..."></textarea>
         </div>
-        <div id="preview-pane" class="preview-pane">
+        <section class="preview-wrapper"><div class="editor-label">即時預覽 <span>PREVIEW</span></div><div id="preview-pane" class="preview-pane">
             <!-- 渲染後的 HTML 會顯示在這裡 -->
-        </div>
+        </div></section>
     </main>
+    <footer class="site-footer"><div><a class="footer-brand" href="../../index.html">萬能工具箱</a><span>讓每一天，更輕鬆一點。</span></div><a class="back-link" href="../../index.html#all-tools">探索更多工具 <svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-right"></use></svg></a></footer>
     <!-- 引入 Marked.js 和 DOMPurify -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <script src="script.js"></script>
 </body>
-</html> 
+</html>
