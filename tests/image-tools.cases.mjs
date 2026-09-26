@@ -37,6 +37,11 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
         await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', button: 'left', buttons: 1, ...to });
         await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, ...to });
     }
+    async function point(x, y) {
+        const bounds = await evaluate(`(() => { const b=document.querySelector('#photo-canvas').getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height};})()`);
+        await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', button: 'left', clickCount: 1, x: bounds.x + bounds.w * x, y: bounds.y + bounds.h * y });
+        await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, x: bounds.x + bounds.w * x, y: bounds.y + bounds.h * y });
+    }
 
     await viewport(1440);
     await navigate('tools/image-cropper/index.html');
@@ -101,6 +106,18 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     await screenshot('blur-desktop');
     console.log('PASS: whole and selected-region blur, region deletion, unmodified outside pixels, region tracking through rotation.');
 
+    await navigate('tools/chroma-key/index.html');
+    await upload([pattern]);
+    await input('#chroma-color', '#0000ff');
+    await click('#pick-color'); await point(.75, .25);
+    assert.equal(await evaluate('document.querySelector("#color-hex").value'), '#00FF00');
+    await input('#tolerance', 5); await input('#softness', 0);
+    const keyed = await pixels(await saved('crop-pattern_cutout.png'), [[72, 16], [24, 16]]);
+    assert.equal(keyed.pixels[0][3], 0, 'Selected green becomes transparent');
+    assert.equal(keyed.pixels[1][3], 255, 'Other colors stay opaque');
+    await screenshot('chroma-key-desktop', true);
+    console.log('PASS: chroma-key eyedropper, tolerance, transparent PNG, preserved foreground.');
+
     await navigate('tools/image-batch/index.html');
     const portrait = await fixture('portrait.png', 64, 96);
     const patternData = (await readFile(pattern)).toString('base64'), portraitData = (await readFile(portrait)).toString('base64');
@@ -148,12 +165,12 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     await input('#target-kb', 8); await ready();
     console.log('PASS: integrated crop → rotation → stretch → blur → compression, exact JPEG output, invalid settings recovery.');
 
-    for (const route of ['image-compressor', 'image-blur', 'image-cropper', 'image-batch', 'image-editor']) {
+    for (const route of ['image-compressor', 'image-blur', 'image-cropper', 'image-batch', 'image-editor', 'chroma-key']) {
         await navigate(`tools/${route}/index.html`); await click('#demo-photo'); await ready();
         for (const width of [320, 390, 768, 900, 1440]) { await viewport(width); await noOverflow(route + ' at ' + width); }
         if (route === 'image-editor') {
             for (const tab of ['crop', 'resize', 'blur', 'compress']) { await click(`[data-tab="${tab}"]`); await viewport(320); await noOverflow('integrated tab ' + tab); }
         }
     }
-    console.log('PASS: all five tools at 320/390/768/900/1440 px and all integrated tabs.');
+    console.log('PASS: all six image tools at 320/390/768/900/1440 px and all integrated tabs.');
 }
