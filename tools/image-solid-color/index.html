@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="將圖片的所有可見像素換成同一個顏色，並保留透明度。圖片只在本機處理。">
+    <meta name="theme-color" content="#f7f8f4">
+    <title>圖片統一顏色 — 萬能工具箱</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+    <link rel="stylesheet" href="../../site.css">
+    <link rel="stylesheet" href="../../assets/image-tools/editor.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="tool-page">
+    <a class="skip-link" href="#main-content">跳至主要內容</a>
+    <header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+        <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱</a>
+        <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+    </nav></header>
+    <div class="tool-intro"><div class="tool-title-row"><span class="tool-icon rose"><svg aria-hidden="true"><use href="../../assets/icons.svg#image"></use></svg></span><h1>圖片統一顏色</h1></div></div>
+    <main id="main-content" class="tool-main photo-tool solid-tool">
+        <div class="photo-topline"><span><svg aria-hidden="true"><use href="../../assets/icons.svg#shield"></use></svg>圖片僅在本機處理。</span></div>
+        <input id="photo-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" hidden>
+        <div class="photo-layout">
+            <section class="photo-preview panel" aria-label="圖片預覽">
+                <div class="photo-toolbar"><h2>預覽</h2><div class="toolbar-actions"><button id="reset-edit" class="text-action" disabled>重設</button><button id="change-photo" class="text-action" hidden>更換圖片</button></div></div>
+                <div id="photo-drop" class="photo-drop">
+                    <span class="drop-symbol"><svg aria-hidden="true"><use href="../../assets/icons.svg#image"></use></svg></span><h2>拖放或貼上圖片</h2>
+                    <button id="choose-photo" class="button primary"><svg aria-hidden="true"><use href="../../assets/icons.svg#upload"></use></svg>選擇圖片</button>
+                    <p class="file-note">PNG、JPG、WebP、GIF、BMP · 最大 50 MB</p>
+                    <button id="demo-photo" class="text-action">使用範例圖片 ↗</button>
+                </div>
+                <div id="photo-loaded" hidden>
+                    <div class="preview-switches"><div class="segmented" role="group" aria-label="預覽模式"><button id="show-result" class="selected" aria-pressed="true">換色結果</button><button id="show-original" aria-pressed="false">原圖</button></div><span id="display-dimensions"></span></div>
+                    <div id="photo-stage" class="photo-stage"><canvas id="photo-canvas" role="img" aria-label="圖片統一顏色預覽"></canvas></div>
+                    <div class="photo-meta"><span id="selected-name"></span><span id="source-dimensions"></span></div>
+                    <div class="result-summary" aria-live="polite"><strong id="result-color">#365E47</strong><span id="result-scope">所有可見像素</span></div>
+                </div>
+            </section>
+            <aside class="photo-settings panel" aria-label="換色設定">
+                <fieldset id="edit-controls" disabled>
+                    <legend class="sr-only">圖片統一顏色設定</legend>
+                    <section class="edit-panel">
+                        <h2>目標顏色</h2>
+                        <div class="color-row"><input id="target-color" type="color" value="#365e47" aria-label="目標顏色"><input id="color-hex" type="text" value="#365E47" maxlength="7" spellcheck="false" aria-label="目標色十六進位色碼"></div>
+                        <label class="check-field"><input id="preserve-alpha" type="checkbox" checked>保留原本透明度</label>
+                    </section>
+                    <section class="export-panel">
+                        <h2>預覽背景</h2>
+                        <select id="preview-background"><option value="grid">透明格紋</option><option value="white">白色</option><option value="black">黑色</option></select>
+                    </section>
+                </fieldset>
+                <div class="download-panel"><button id="save-image" class="button primary" disabled><svg aria-hidden="true"><use href="../../assets/icons.svg#download"></use></svg>下載 PNG</button></div>
+            </aside>
+        </div>
+        <p id="photo-status" class="photo-status" role="status" aria-live="polite"></p>
+        <details class="photo-limits"><summary>格式與尺寸限制</summary><p>來源最多 2,400 萬像素、每邊最多 8,192 px。GIF 匯出為靜態圖片。</p></details>
+        <noscript><p>請啟用 JavaScript 以使用圖片統一顏色。</p></noscript>
+    </main>
+    <footer class="site-footer"><a class="footer-brand" href="../../index.html">萬能工具箱</a><a href="../../index.html#all-tools">所有工具 →</a></footer>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

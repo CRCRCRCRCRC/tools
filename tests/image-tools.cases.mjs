@@ -118,6 +118,20 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     await screenshot('chroma-key-desktop', true);
     console.log('PASS: chroma-key eyedropper, tolerance, transparent PNG, preserved foreground.');
 
+    await navigate('tools/image-solid-color/index.html');
+    const transparentData = await evaluate(`(() => {const c=document.createElement('canvas');c.width=40;c.height=20;const x=c.getContext('2d');x.clearRect(0,0,40,20);x.fillStyle='#f05a44';x.fillRect(0,0,20,20);return c.toDataURL('image/png').split(',')[1];})()`);
+    const transparentShape = path.join(temporary, 'transparent-shape.png');
+    await writeFile(transparentShape, Buffer.from(transparentData, 'base64'));
+    await upload([transparentShape]);
+    await input('#target-color', '#336699');
+    const solid = await pixels(await saved('transparent-shape_solid.png'), [[5, 5], [30, 5]]);
+    assert.deepEqual(solid.pixels[0], [51, 102, 153, 255], 'Visible pixels use the selected color');
+    assert.equal(solid.pixels[1][3], 0, 'Transparency is preserved');
+    await click('#preserve-alpha');
+    await until(() => evaluate('document.querySelector("#photo-canvas").getContext("2d").getImageData(30,5,1,1).data[3] === 255'), 'opaque pixels');
+    await screenshot('solid-color-desktop', true);
+    console.log('PASS: solid-color replacement, exact selected RGB, preserved and opaque alpha modes.');
+
     await navigate('tools/image-batch/index.html');
     const portrait = await fixture('portrait.png', 64, 96);
     const patternData = (await readFile(pattern)).toString('base64'), portraitData = (await readFile(portrait)).toString('base64');
@@ -165,12 +179,12 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     await input('#target-kb', 8); await ready();
     console.log('PASS: integrated crop → rotation → stretch → blur → compression, exact JPEG output, invalid settings recovery.');
 
-    for (const route of ['image-compressor', 'image-blur', 'image-cropper', 'image-batch', 'image-editor', 'chroma-key']) {
+    for (const route of ['image-compressor', 'image-blur', 'image-cropper', 'image-batch', 'image-editor', 'chroma-key', 'image-solid-color']) {
         await navigate(`tools/${route}/index.html`); await click('#demo-photo'); await ready();
         for (const width of [320, 390, 768, 900, 1440]) { await viewport(width); await noOverflow(route + ' at ' + width); }
         if (route === 'image-editor') {
             for (const tab of ['crop', 'resize', 'blur', 'compress']) { await click(`[data-tab="${tab}"]`); await viewport(320); await noOverflow('integrated tab ' + tab); }
         }
     }
-    console.log('PASS: all six image tools at 320/390/768/900/1440 px and all integrated tabs.');
+    console.log('PASS: all seven image tools at 320/390/768/900/1440 px and all integrated tabs.');
 }
