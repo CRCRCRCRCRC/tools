@@ -154,7 +154,11 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     const colorCanvas = await evaluate(`(() => {const b=document.querySelector('#canvas').getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height};})()`);
     await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', button: 'left', clickCount: 1, x: colorCanvas.x + colorCanvas.w * .25, y: colorCanvas.y + colorCanvas.h * .25 });
     await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, x: colorCanvas.x + colorCanvas.w * .25, y: colorCanvas.y + colorCanvas.h * .25 });
-    await until(() => evaluate('document.querySelector("#sourceHex").textContent === "#FF0000"'), 'pixel source color');
+    await until(() => evaluate('document.querySelector("#sourceHex").value === "#FF0000"'), 'pixel source color');
+    await input('#sourceHex', '#0000FF');
+    await until(() => evaluate('document.querySelector("#sourceColorInput").value === "#0000ff"'), 'manual source hex');
+    await input('#sourceColorInput', '#ff0000');
+    await until(() => evaluate('document.querySelector("#sourceHex").value === "#FF0000"'), 'manual source color');
     await input('#replacementColor', '#123456');
     await until(() => evaluate(`(() => {const d=document.querySelector('#canvas').getContext('2d').getImageData(10,10,1,1).data;return !document.querySelector('#downloadBtn').disabled && d[0]===18 && d[1]===52 && d[2]===86;})()`), 'pixel replacement');
     await click('#downloadBtn');

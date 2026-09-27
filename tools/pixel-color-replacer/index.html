@@ -431,6 +431,7 @@ body { min-height: 100vh; background: var(--bg); color: var(--ink); font-family:
 button.secondary { background: #fff; color: var(--green); border: 1px solid var(--border); border-radius: 9px; }
 button.secondary.active { background: var(--green); color: #fff; }
 .color-preview, .color-box, .number-input { border-color: var(--border); }
+.hex-input { width: 100%; min-width: 0; height: 42px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fbfcf8; color: var(--ink); font-size: 16px; text-transform: uppercase; }
 .range-value { color: var(--green); }
 input[type=range], input[type=checkbox] { accent-color: var(--green); }
 .canvas-area { min-height: 650px; background: repeating-conic-gradient(#edf0e8 0 25%, #fcfdfb 0 50%) 0 / 18px 18px; }
@@ -483,6 +484,17 @@ body.embed .app { min-height: 100dvh; border: 0; border-radius: 0; }
             <div class="section-title">2. 要替換的原顏色</div>
 
             <div class="row">
+                <label for="sourceColorInput">原顏色</label>
+
+                <input
+                    id="sourceColorInput"
+                    class="color-box"
+                    type="color"
+                    value="#ffffff"
+                >
+            </div>
+
+            <div class="row">
                 <div
                     id="sourcePreview"
                     class="color-preview"
@@ -490,15 +502,23 @@ body.embed .app { min-height: 100dvh; border: 0; border-radius: 0; }
                 ></div>
 
                 <div class="color-data">
-                    <strong id="sourceHex">尚未選取</strong>
+                    <input
+                        id="sourceHex"
+                        class="hex-input"
+                        type="text"
+                        value="#FFFFFF"
+                        maxlength="7"
+                        spellcheck="false"
+                        aria-label="要替換的原顏色色碼"
+                    >
                     <span id="sourceRgb">
-                        請直接點擊圖片上的顏色
+                        RGB(255, 255, 255)
                     </span>
                 </div>
             </div>
 
             <div class="description">
-                直接點右側圖片即可吸取該位置的原始像素顏色。
+                可直接改顏色或色碼，也可點圖片吸取顏色。
             </div>
         </div>
 
@@ -715,6 +735,8 @@ const emptyState = document.getElementById("emptyState");
 const sourcePreview = document.getElementById("sourcePreview");
 const sourceHex = document.getElementById("sourceHex");
 const sourceRgb = document.getElementById("sourceRgb");
+const sourceColorInput =
+    document.getElementById("sourceColorInput");
 
 const replacementColor =
     document.getElementById("replacementColor");
@@ -801,6 +823,10 @@ function rgbToHex(r, g, b) {
 
 
 function hexToRgb(hex) {
+    if (!/^#[0-9a-f]{6}$/i.test(hex)) {
+        return null;
+    }
+
     const value =
         parseInt(hex.substring(1), 16);
 
@@ -809,6 +835,39 @@ function hexToRgb(hex) {
         g: (value >> 8) & 255,
         b: value & 255
     };
+}
+
+
+function setSourceColor(hex) {
+    const rgb = hexToRgb(hex);
+
+    if (!rgb) {
+        return false;
+    }
+
+    const normalized =
+        rgbToHex(rgb.r, rgb.g, rgb.b);
+
+    sourceColor = {
+        ...rgb,
+        a: 255
+    };
+
+    sourceColorInput.value =
+        normalized.toLowerCase();
+
+    sourceHex.value = normalized;
+    sourceRgb.textContent =
+        `RGB(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+    sourcePreview.style.background =
+        normalized;
+
+    currentMode = "result";
+    updateModeButtons();
+    scheduleProcess();
+
+    return true;
 }
 
 
@@ -900,11 +959,14 @@ function loadImageFile(file) {
 
             sourceColor = null;
 
-            sourceHex.textContent =
-                "尚未選取";
+            sourceHex.value =
+                "#FFFFFF";
 
             sourceRgb.textContent =
-                "請直接點擊圖片上的顏色";
+                "RGB(255, 255, 255)";
+
+            sourceColorInput.value =
+                "#ffffff";
 
             sourcePreview.style.background =
                 "#ffffff";
@@ -1071,31 +1133,14 @@ canvas.addEventListener(
         const data =
             originalImageData.data;
 
-        sourceColor = {
-            r: data[index],
-            g: data[index + 1],
-            b: data[index + 2],
-            a: data[index + 3]
-        };
-
         const hex =
             rgbToHex(
-                sourceColor.r,
-                sourceColor.g,
-                sourceColor.b
+                data[index],
+                data[index + 1],
+                data[index + 2]
             );
 
-        sourceHex.textContent = hex;
-
-        sourceRgb.textContent =
-            `RGB(${sourceColor.r}, ${sourceColor.g}, ${sourceColor.b})`;
-
-        sourcePreview.style.background = hex;
-
-        currentMode = "result";
-
-        updateModeButtons();
-        scheduleProcess();
+        setSourceColor(hex);
     }
 );
 
@@ -1166,6 +1211,53 @@ canvas.addEventListener(
 /* =========================
    設定
 ========================= */
+
+sourceColorInput.addEventListener(
+    "input",
+    () => setSourceColor(
+        sourceColorInput.value
+    )
+);
+
+
+sourceHex.addEventListener(
+    "input",
+    () => {
+        const value =
+            sourceHex.value
+            .trim()
+            .toUpperCase();
+
+        if (/^#[0-9A-F]{6}$/.test(value)) {
+            setSourceColor(value);
+        }
+    }
+);
+
+
+sourceHex.addEventListener(
+    "change",
+    () => {
+        if (!setSourceColor(
+            sourceHex.value
+            .trim()
+            .toUpperCase()
+        )) {
+            sourceHex.value =
+                sourceColor
+                    ? rgbToHex(
+                        sourceColor.r,
+                        sourceColor.g,
+                        sourceColor.b
+                    )
+                    : "#FFFFFF";
+
+            showStatus(
+                "請輸入六位數色碼，例如 #FF0000。"
+            );
+        }
+    }
+);
 
 replacementColor.addEventListener(
     "input",
