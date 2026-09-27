@@ -7,10 +7,13 @@ import path from 'node:path';
 export async function imageToolsCases({ cdp, evaluate, click, input, navigate, viewport, screenshot, noOverflow, until, temporary, downloads }) {
     const ready = () => until(() => evaluate('!document.querySelector("#save-image").disabled'), 'image editor result');
     const change = (id, value) => evaluate(`(() => {const el=document.getElementById(${JSON.stringify(id)});el.value=${JSON.stringify(String(value))};el.dispatchEvent(new Event('change',{bubbles:true}));})()`);
-    async function upload(files) {
+    async function uploadTo(selector, files) {
         const doc = await cdp('DOM.getDocument');
-        const node = await cdp('DOM.querySelector', { nodeId: doc.root.nodeId, selector: '#photo-input' });
+        const node = await cdp('DOM.querySelector', { nodeId: doc.root.nodeId, selector });
         await cdp('DOM.setFileInputFiles', { nodeId: node.nodeId, files });
+    }
+    async function upload(files) {
+        await uploadTo('#photo-input', files);
         await ready();
     }
     async function fixture(name, width, height, noisy = false) {
@@ -132,6 +135,37 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     await screenshot('solid-color-desktop', true);
     console.log('PASS: solid-color replacement, exact selected RGB, preserved and opaque alpha modes.');
 
+    await navigate('tools/perspective-correction/index.html');
+    await uploadTo('#uploadInput', [pattern]);
+    await until(() => evaluate('!document.querySelector("#resetBtn").disabled && document.querySelector("#editCanvas").width > 0'), 'perspective image');
+    assert.equal(await evaluate('document.querySelector(".tool-intro h1").textContent'), '四點透視校正');
+    await screenshot('perspective-desktop', true);
+
+    await navigate('tools/quadrilateral-blur/index.html');
+    await uploadTo('#fileInput', [pattern]);
+    await until(() => evaluate('!document.querySelector("#addButton").disabled && !document.querySelector("#downloadButton").disabled'), 'quadrilateral blur image');
+    await click('#addButton');
+    assert.equal(await evaluate('document.querySelector("#deleteButton").disabled'), false);
+    await screenshot('quadrilateral-blur-desktop', true);
+
+    await navigate('tools/pixel-color-replacer/index.html');
+    await uploadTo('#fileInput', [pattern]);
+    await until(() => evaluate('document.querySelector("#canvas").width === 96'), 'pixel replacer image');
+    const colorCanvas = await evaluate(`(() => {const b=document.querySelector('#canvas').getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height};})()`);
+    await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', button: 'left', clickCount: 1, x: colorCanvas.x + colorCanvas.w * .25, y: colorCanvas.y + colorCanvas.h * .25 });
+    await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, x: colorCanvas.x + colorCanvas.w * .25, y: colorCanvas.y + colorCanvas.h * .25 });
+    await until(() => evaluate('document.querySelector("#sourceHex").textContent === "#FF0000"'), 'pixel source color');
+    await input('#replacementColor', '#123456');
+    await until(() => evaluate(`(() => {const d=document.querySelector('#canvas').getContext('2d').getImageData(10,10,1,1).data;return !document.querySelector('#downloadBtn').disabled && d[0]===18 && d[1]===52 && d[2]===86;})()`), 'pixel replacement');
+    await click('#downloadBtn');
+    const replacedPath = path.join(downloads, 'color-replaced.png');
+    await until(() => existsSync(replacedPath), 'pixel replacement download');
+    const replaced = await pixels(await readFile(replacedPath), [[10, 10], [70, 10]]);
+    assert.deepEqual(replaced.pixels[0], [18, 52, 86, 255]);
+    assert.deepEqual(replaced.pixels[1], [0, 255, 0, 255]);
+    await screenshot('pixel-color-replacer-desktop', true);
+    console.log('PASS: perspective upload, quadrilateral region creation, pixel color selection/replacement/download.');
+
     await navigate('tools/image-batch/index.html');
     const portrait = await fixture('portrait.png', 64, 96);
     const patternData = (await readFile(pattern)).toString('base64'), portraitData = (await readFile(portrait)).toString('base64');
@@ -177,6 +211,18 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     await until(() => evaluate('!document.querySelector("#validation-error").hidden'), 'invalid target');
     assert.equal(await evaluate('document.querySelector("#save-image").disabled'), true);
     await input('#target-kb', 8); await ready();
+    await click('#advanced-tab');
+    await until(() => evaluate('document.querySelector("#advanced-frame").contentDocument?.title === "四點透視校正 — 萬能工具箱"'), 'integrated perspective tool');
+    await click('[data-advanced-url*="quadrilateral-blur"]');
+    await until(() => evaluate('document.querySelector("#advanced-frame").contentDocument?.title === "四點區域模糊 — 萬能工具箱"'), 'integrated quadrilateral tool');
+    await click('[data-advanced-url*="chroma-key"]');
+    await until(() => evaluate('document.querySelector("#advanced-frame").contentDocument?.title === "色度摳圖 — 萬能工具箱"'), 'integrated chroma-key tool');
+    await click('[data-advanced-url*="image-solid-color"]');
+    await until(() => evaluate('document.querySelector("#advanced-frame").contentDocument?.title === "圖片統一顏色 — 萬能工具箱"'), 'integrated solid-color tool');
+    await click('[data-advanced-url*="quadrilateral-blur"]');
+    await until(() => evaluate('document.querySelector("#advanced-frame").contentDocument?.title === "四點區域模糊 — 萬能工具箱"'), 'integrated quadrilateral return');
+    await screenshot('integrated-advanced-desktop', true);
+    await click('[data-tab="crop"]');
     console.log('PASS: integrated crop → rotation → stretch → blur → compression, exact JPEG output, invalid settings recovery.');
 
     for (const route of ['image-compressor', 'image-blur', 'image-cropper', 'image-batch', 'image-editor', 'chroma-key', 'image-solid-color']) {
@@ -184,7 +230,12 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
         for (const width of [320, 390, 768, 900, 1440]) { await viewport(width); await noOverflow(route + ' at ' + width); }
         if (route === 'image-editor') {
             for (const tab of ['crop', 'resize', 'blur', 'compress']) { await click(`[data-tab="${tab}"]`); await viewport(320); await noOverflow('integrated tab ' + tab); }
+            await click('#advanced-tab'); await viewport(320); await noOverflow('integrated advanced tools');
         }
     }
-    console.log('PASS: all seven image tools at 320/390/768/900/1440 px and all integrated tabs.');
+    for (const route of ['perspective-correction', 'quadrilateral-blur', 'pixel-color-replacer']) {
+        await navigate(`tools/${route}/index.html`);
+        for (const width of [320, 390, 768, 900, 1440]) { await viewport(width); await noOverflow(route + ' at ' + width); }
+    }
+    console.log('PASS: all ten image tools at 320/390/768/900/1440 px and all integrated tabs.');
 }

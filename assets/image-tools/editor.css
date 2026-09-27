@@ -36,6 +36,7 @@
 #result-extra:empty { display: none; }
 #size-change { font-size: 14px; }
 .edit-tabs { display: grid; grid-template-columns: repeat(4, 1fr); padding: 8px; gap: 3px; border-bottom: 1px solid var(--border); background: #fafcf7; }
+.studio-tabs { grid-template-columns: repeat(5, 1fr); }
 .edit-tabs button { min-width: 0; border: 0; background: transparent; padding: 12px 2px; color: var(--muted); font-size: 16px; border-radius: 7px; }
 .edit-tabs button[aria-pressed=true] { color: #fff; background: var(--green); }
 .photo-settings fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
@@ -88,6 +89,15 @@
 .batch-controls .button { font-size: 16px; padding: 10px 14px; }
 #batch-progress { display: block; width: calc(100% - 40px); margin: 0 20px 16px; accent-color: var(--green); height: 10px; }
 #batch-status:empty { display: none; }
+.advanced-tools { overflow: hidden; }
+.advanced-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 22px; border-bottom: 1px solid var(--border); }
+.advanced-heading h2 { margin: 0 0 3px; font-size: 22px; }
+.advanced-heading p { margin: 0; color: var(--muted); font-size: 16px; }
+.advanced-heading a { color: var(--green); font-size: 16px; white-space: nowrap; }
+.advanced-switcher { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: #fafcf7; overflow-x: auto; }
+.advanced-switcher button { min-height: 42px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--green); font-size: 16px; white-space: nowrap; }
+.advanced-switcher button.selected { background: var(--green); border-color: var(--green); color: #fff; }
+#advanced-frame { display: block; width: 100%; height: min(760px, calc(100dvh - 150px)); min-height: 620px; border: 0; background: var(--bg); }
 @media (max-width: 1000px) { .photo-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; } .photo-toolbar { padding: 14px 16px; } .toolbar-actions { gap: 8px; } .photo-stage { margin: 0 16px; padding: 16px; } .edit-panel, .export-panel { padding: 20px; } }
 @media (max-width: 850px) { .photo-layout { grid-template-columns: 1fr; grid-template-areas: "preview" "settings" "queue"; } .photo-stage { height: 400px; } .photo-settings { width: 100%; } }
-@media (max-width: 500px) { .photo-topline { font-size: 14px; gap: 8px; } .photo-topline a { font-size: 14px; } .photo-stage { height: 280px; padding: 12px; } .photo-drop { min-height: 325px; margin: 16px; padding: 28px 15px; } .photo-drop h2 { font-size: 23px; } .toolbar-actions { gap: 7px; } .text-action { font-size: 16px; } .photo-toolbar { gap: 10px; } .photo-toolbar h2 { font-size: 18px; } .preview-switches { padding: 15px 16px; } .photo-meta { padding: 12px 16px; } .result-summary { padding: 14px 16px; } .photo-list { padding: 0 14px; } .queue-note { margin: 14px; } .batch-controls { padding: 14px; gap: 8px; } .batch-controls .button { flex: 1; min-width: 120px; } .edit-tabs button { font-size: 16px; } .queue-select img { width: 38px; } }
+@media (max-width: 500px) { .photo-topline { font-size: 14px; gap: 8px; } .photo-topline a { font-size: 14px; } .photo-stage { height: 280px; padding: 12px; } .photo-drop { min-height: 325px; margin: 16px; padding: 28px 15px; } .photo-drop h2 { font-size: 23px; } .toolbar-actions { gap: 7px; } .text-action { font-size: 16px; } .photo-toolbar { gap: 10px; } .photo-toolbar h2 { font-size: 18px; } .preview-switches { padding: 15px 16px; } .photo-meta { padding: 12px 16px; } .result-summary { padding: 14px 16px; } .photo-list { padding: 0 14px; } .queue-note { margin: 14px; } .batch-controls { padding: 14px; gap: 8px; } .batch-controls .button { flex: 1; min-width: 120px; } .edit-tabs button { font-size: 14px; } .queue-select img { width: 38px; } .advanced-heading { align-items: flex-start; padding: 17px; } .advanced-heading p { font-size: 14px; } .advanced-heading a { font-size: 14px; } .advanced-switcher { padding: 10px; } #advanced-frame { min-height: 590px; } }

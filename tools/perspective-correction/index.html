@@ -1,0 +1,7626 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>四點透視校正 — 萬能工具箱</title>
+
+<meta name="description" content="拖曳四個角點修正文件與照片透視，可自動偵測邊界並匯出 PNG。">
+<meta name="theme-color" content="#f7f8f4">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="stylesheet" href="../../site.css">
+
+<style>
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+
+  background:#111;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button{
+  font:inherit;
+  cursor:pointer;
+}
+
+#app{
+  width:100%;
+  height:100%;
+
+  display:flex;
+  flex-direction:column;
+
+  background:#111;
+}
+
+
+/* =========================
+   頂部
+========================= */
+
+.topbar{
+  min-height:68px;
+
+  flex:none;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:7px;
+
+  padding:8px 10px;
+
+  background:#151515;
+
+  z-index:30;
+}
+
+.leftBtns,
+.rightBtns{
+  display:flex;
+
+  gap:6px;
+}
+
+.btn{
+  border:0;
+
+  background:#f3f3f3;
+  color:#111;
+
+  border-radius:999px;
+
+  padding:10px 14px;
+
+  font-size:14px;
+  font-weight:750;
+
+  white-space:nowrap;
+}
+
+.btn:active{
+  transform:scale(.96);
+}
+
+.btn:disabled{
+  opacity:.35;
+
+  cursor:default;
+}
+
+.autoBtn{
+  background:#dfffdc;
+}
+
+
+/* =========================
+   編輯區
+========================= */
+
+#stage{
+  position:relative;
+
+  flex:1;
+
+  min-height:0;
+
+  overflow:hidden;
+
+  background:#242424;
+
+  touch-action:none;
+}
+
+#editCanvas{
+  display:block;
+
+  width:100%;
+  height:100%;
+
+  touch-action:none;
+}
+
+
+/* =========================
+   初始畫面
+========================= */
+
+#empty{
+  position:absolute;
+
+  inset:0;
+
+  display:flex;
+
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  gap:17px;
+
+  padding:20px;
+
+  color:white;
+}
+
+.emptyTitle{
+  font-size:25px;
+
+  font-weight:800;
+}
+
+.emptyText{
+  opacity:.62;
+
+  text-align:center;
+
+  line-height:1.6;
+
+  font-size:15px;
+}
+
+.emptyButtons{
+  display:flex;
+
+  justify-content:center;
+
+  gap:11px;
+
+  flex-wrap:wrap;
+}
+
+.bigBtn{
+  border:0;
+
+  border-radius:16px;
+
+  padding:14px 21px;
+
+  font-size:17px;
+
+  font-weight:800;
+}
+
+.uploadBtn{
+  background:white;
+
+  color:black;
+}
+
+.cameraBtn{
+  background:#353535;
+
+  color:white;
+
+  border:1px solid #555;
+}
+
+
+/* =========================
+   十字顏色
+========================= */
+
+#crossColorControl{
+  position:absolute;
+
+  left:13px;
+  bottom:14px;
+
+  display:none;
+  align-items:center;
+
+  gap:9px;
+
+  padding:7px 10px;
+
+  background:rgba(20,20,20,.82);
+
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+
+  border:
+    1px solid
+    rgba(255,255,255,.16);
+
+  border-radius:18px;
+
+  color:white;
+
+  z-index:45;
+}
+
+#crossColorControl span{
+  font-size:13px;
+
+  font-weight:700;
+
+  white-space:nowrap;
+}
+
+#crossColor{
+  width:34px;
+  height:34px;
+
+  padding:0;
+
+  border:
+    2px solid
+    rgba(255,255,255,.7);
+
+  border-radius:50%;
+
+  background:none;
+
+  overflow:hidden;
+
+  cursor:pointer;
+}
+
+#crossColor::-webkit-color-swatch-wrapper{
+  padding:0;
+}
+
+#crossColor::-webkit-color-swatch{
+  border:none;
+
+  border-radius:50%;
+}
+
+
+/* =========================
+   Zoom
+========================= */
+
+#zoomControls{
+  position:absolute;
+
+  right:13px;
+  bottom:14px;
+
+  display:none;
+
+  align-items:center;
+
+  z-index:40;
+
+  background:rgba(20,20,20,.82);
+
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+
+  border:
+    1px solid
+    rgba(255,255,255,.16);
+
+  border-radius:18px;
+
+  overflow:hidden;
+}
+
+.zoomButton{
+  width:49px;
+  height:48px;
+
+  border:0;
+
+  background:transparent;
+
+  color:white;
+
+  font-size:27px;
+}
+
+.zoomButton:active{
+  background:
+    rgba(255,255,255,.13);
+}
+
+#zoomText{
+  width:65px;
+
+  text-align:center;
+
+  color:white;
+
+  font-size:14px;
+
+  font-weight:750;
+
+  user-select:none;
+}
+
+
+/* =========================
+   放大鏡
+========================= */
+
+#loupe{
+  position:absolute;
+
+  width:280px;
+  height:280px;
+
+  border-radius:50%;
+
+  border:4px solid white;
+
+  background:#111;
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,.6),
+    0 0 0 1px rgba(0,0,0,.4);
+
+  pointer-events:none;
+
+  display:none;
+
+  z-index:100;
+}
+
+
+/* =========================
+   Toast
+========================= */
+
+#toast{
+  position:absolute;
+
+  left:50%;
+  top:16px;
+
+  transform:
+    translateX(-50%)
+    translateY(-10px);
+
+  max-width:86%;
+
+  padding:9px 15px;
+
+  border-radius:999px;
+
+  background:
+    rgba(0,0,0,.76);
+
+  color:white;
+
+  font-size:14px;
+
+  font-weight:700;
+
+  text-align:center;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:
+    opacity .2s,
+    transform .2s;
+
+  z-index:150;
+}
+
+#toast.show{
+  opacity:1;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+}
+
+
+/* =========================
+   下方確認
+========================= */
+
+#bottomBar{
+  height:88px;
+
+  flex:none;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  background:#111;
+}
+
+.confirmBtn{
+  width:63px;
+  height:63px;
+
+  border:0;
+
+  border-radius:50%;
+
+  background:white;
+
+  color:black;
+
+  font-size:34px;
+
+  font-weight:900;
+}
+
+.confirmBtn:active{
+  transform:scale(.93);
+}
+
+
+/* =========================
+   結果
+========================= */
+
+#resultPage{
+  position:fixed;
+
+  inset:0;
+
+  display:none;
+
+  flex-direction:column;
+
+  z-index:500;
+
+  background:#111;
+}
+
+.resultTop{
+  height:68px;
+
+  flex:none;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:space-between;
+
+  padding:8px 12px;
+}
+
+.resultTitle{
+  color:white;
+
+  font-weight:800;
+}
+
+.resultSpacer{
+  width:95px;
+}
+
+.darkBtn{
+  border:
+    1px solid #555;
+
+  background:#292929;
+
+  color:white;
+
+  border-radius:14px;
+
+  padding:11px 15px;
+
+  font-size:15px;
+
+  font-weight:700;
+}
+
+#resultWrap{
+  flex:1;
+
+  min-height:0;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:14px;
+
+  overflow:auto;
+
+  background:#222;
+}
+
+#resultCanvas{
+  display:block;
+
+  max-width:100%;
+  max-height:100%;
+
+  background:white;
+
+  box-shadow:
+    0 12px 45px
+    rgba(0,0,0,.5);
+}
+
+.resultBottom{
+  min-height:90px;
+
+  flex:none;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  gap:12px;
+
+  padding:13px;
+}
+
+.downloadBtn{
+  border:0;
+
+  background:white;
+
+  color:black;
+
+  border-radius:14px;
+
+  padding:12px 20px;
+
+  font-size:16px;
+
+  font-weight:800;
+}
+
+
+/* =========================
+   Loading
+========================= */
+
+#loading{
+  position:fixed;
+
+  inset:0;
+
+  display:none;
+
+  flex-direction:column;
+
+  align-items:center;
+  justify-content:center;
+
+  gap:10px;
+
+  z-index:1000;
+
+  background:
+    rgba(0,0,0,.75);
+
+  color:white;
+
+  font-size:18px;
+
+  font-weight:800;
+}
+
+.spinner{
+  width:35px;
+  height:35px;
+
+  border-radius:50%;
+
+  border:
+    4px solid
+    rgba(255,255,255,.22);
+
+  border-top-color:white;
+
+  animation:
+    spin .8s linear infinite;
+}
+
+@keyframes spin{
+
+  to{
+    transform:
+      rotate(360deg);
+  }
+
+}
+
+
+#uploadInput,
+#cameraInput{
+  display:none;
+}
+
+
+/* =========================
+   手機
+========================= */
+
+@media(max-width:700px){
+
+  .topbar{
+    min-height:62px;
+
+    padding:6px;
+
+    gap:4px;
+  }
+
+  .leftBtns,
+  .rightBtns{
+    gap:4px;
+  }
+
+  .btn{
+    padding:9px 9px;
+
+    font-size:12px;
+  }
+
+  #loupe{
+    width:250px;
+    height:250px;
+  }
+
+  #crossColorControl span{
+    display:none;
+  }
+
+}
+
+</style>
+
+<style>
+html, body { width: auto; height: auto; min-height: 100%; overflow: auto; background: var(--bg); color: var(--ink); font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif; }
+body { display: block; }
+.advanced-shell { width: min(1120px, calc(100% - 64px)); margin: 0 auto 48px; }
+#app { height: max(620px, calc(100dvh - 250px)); max-height: 820px; min-height: 620px; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
+.topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 11px 14px; }
+.btn { min-height: 44px; border: 1px solid var(--border); border-radius: 9px; background: #fff; color: var(--green); font-size: 16px; font-weight: 650; }
+.btn:hover:not(:disabled) { background: var(--soft-green); }
+.autoBtn { background: var(--soft-green); border-color: #d0ddc6; }
+#stage { background: repeating-conic-gradient(#edf0e8 0 25%, #fcfdfb 0 50%) 0 / 18px 18px; }
+#bottomBar { background: #fff; border-top: 1px solid var(--border); }
+.confirmBtn, .downloadBtn { background: var(--green); color: #fff; border-radius: 9px; }
+#zoomControls, #crossColorControl { background: #fffffff2; color: var(--ink); border: 1px solid var(--border); box-shadow: 0 4px 14px #263b3015; }
+.zoomButton { color: var(--green); }
+#empty { color: var(--ink); }
+.emptyText { color: var(--muted); font-size: 16px; }
+.bigBtn { border-radius: 9px; font-size: 16px; }
+.uploadBtn { background: var(--green); color: #fff; }
+.cameraBtn { background: #fff; color: var(--green); border: 1px solid var(--border); }
+#resultPage { background: var(--bg); }
+.resultTop, .resultBottom { background: #fff; border-color: var(--border); color: var(--ink); }
+.darkBtn { background: #fff; color: var(--green); border: 1px solid var(--border); border-radius: 9px; }
+#resultWrap { background: repeating-conic-gradient(#edf0e8 0 25%, #fcfdfb 0 50%) 0 / 18px 18px; }
+#loading { background: #f7f8f4dd; color: var(--ink); }
+.spinner { border-color: #d7e1ce; border-top-color: var(--green); }
+body.embed .site-header, body.embed .tool-intro, body.embed .site-footer { display: none; }
+body.embed .advanced-shell { width: 100%; height: 100dvh; max-height: none; min-height: 620px; margin: 0; border: 0; border-radius: 0; }
+@media (max-width: 600px) { .advanced-shell { width: calc(100% - 36px); } #app { height: max(590px, calc(100dvh - 210px)); min-height: 590px; border-radius: 14px; } .topbar { gap: 6px; padding: 8px; } .btn { min-height: 40px; padding: 8px 10px; font-size: 14px; } }
+</style>
+</head>
+
+
+<body class="tool-page">
+
+<script>if(new URLSearchParams(location.search).has('embed'))document.body.classList.add('embed');</script>
+
+<a class="skip-link" href="#main-content">跳至主要內容</a>
+<header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+  <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱</a>
+  <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+</nav></header>
+<div class="tool-intro"><div class="tool-title-row"><span class="tool-icon blue"><svg aria-hidden="true"><use href="../../assets/icons.svg#stretch"></use></svg></span><h1>四點透視校正</h1></div></div>
+<main id="main-content" class="advanced-shell">
+
+
+<div id="app">
+
+
+  <div class="topbar">
+
+    <div class="leftBtns">
+
+      <button
+        class="btn"
+        id="topUpload"
+      >
+        上傳照片
+      </button>
+
+      <button
+        class="btn"
+        id="topCamera"
+      >
+        拍攝照片
+      </button>
+
+    </div>
+
+
+    <div class="rightBtns">
+
+      <button
+        class="btn autoBtn"
+        id="autoDetectBtn"
+        disabled
+      >
+        自動偵測
+      </button>
+
+      <button
+        class="btn"
+        id="resetBtn"
+        disabled
+      >
+        重設
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div id="stage">
+
+    <canvas
+      id="editCanvas"
+    ></canvas>
+
+
+    <canvas
+      id="loupe"
+    ></canvas>
+
+
+    <div id="empty">
+
+      <div class="emptyTitle">
+        四點透視校正
+      </div>
+
+
+      <div class="emptyText">
+
+        上傳照片後可按「自動偵測」<br>
+
+        也可以放大後手動精準調整四角
+
+      </div>
+
+
+      <div class="emptyButtons">
+
+        <button
+          class="bigBtn uploadBtn"
+          id="mainUpload"
+        >
+          上傳照片
+        </button>
+
+
+        <button
+          class="bigBtn cameraBtn"
+          id="mainCamera"
+        >
+          拍攝照片
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div id="crossColorControl">
+
+      <span>
+        十字顏色
+      </span>
+
+      <input
+        type="color"
+        id="crossColor"
+        value="#ffffff"
+      >
+
+    </div>
+
+
+    <div id="zoomControls">
+
+      <button
+        class="zoomButton"
+        id="zoomOut"
+      >
+        −
+      </button>
+
+
+      <div id="zoomText">
+        100%
+      </div>
+
+
+      <button
+        class="zoomButton"
+        id="zoomIn"
+      >
+        +
+      </button>
+
+    </div>
+
+
+    <div id="toast"></div>
+
+  </div>
+
+
+  <div id="bottomBar">
+
+    <button
+      class="confirmBtn"
+      id="confirmBtn"
+    >
+      ✓
+    </button>
+
+  </div>
+
+
+</div>
+
+</main>
+
+
+
+<input
+  id="uploadInput"
+  type="file"
+  accept="image/*"
+>
+
+
+<input
+  id="cameraInput"
+  type="file"
+  accept="image/*"
+  capture="environment"
+>
+
+
+
+<div id="resultPage">
+
+
+  <div class="resultTop">
+
+    <button
+      class="darkBtn"
+      id="backBtn"
+    >
+      ‹ 返回
+    </button>
+
+
+    <div class="resultTitle">
+      校正結果
+    </div>
+
+
+    <div class="resultSpacer">
+    </div>
+
+  </div>
+
+
+  <div id="resultWrap">
+
+    <canvas
+      id="resultCanvas"
+    ></canvas>
+
+  </div>
+
+
+  <div class="resultBottom">
+
+    <button
+      class="darkBtn"
+      id="backBtn2"
+    >
+      重新調整
+    </button>
+
+
+    <button
+      class="downloadBtn"
+      id="downloadBtn"
+    >
+      下載 PNG
+    </button>
+
+  </div>
+
+
+</div>
+
+
+
+<div id="loading">
+
+  <div class="spinner"></div>
+
+  <div id="loadingText">
+    處理中…
+  </div>
+
+</div>
+
+
+
+<footer class="site-footer"><a class="footer-brand" href="../../index.html">萬能工具箱</a><a href="../../index.html#all-tools">所有工具 →</a></footer>
+
+<script>
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const stage =
+  document.getElementById(
+    "stage"
+  );
+
+
+const canvas =
+  document.getElementById(
+    "editCanvas"
+  );
+
+
+const ctx =
+  canvas.getContext(
+    "2d"
+  );
+
+
+const loupe =
+  document.getElementById(
+    "loupe"
+  );
+
+
+const loupeCtx =
+  loupe.getContext(
+    "2d"
+  );
+
+
+const empty =
+  document.getElementById(
+    "empty"
+  );
+
+
+const bottomBar =
+  document.getElementById(
+    "bottomBar"
+  );
+
+
+const zoomControls =
+  document.getElementById(
+    "zoomControls"
+  );
+
+
+const crossColorControl =
+  document.getElementById(
+    "crossColorControl"
+  );
+
+
+const crossColorInput =
+  document.getElementById(
+    "crossColor"
+  );
+
+
+const zoomText =
+  document.getElementById(
+    "zoomText"
+  );
+
+
+const uploadInput =
+  document.getElementById(
+    "uploadInput"
+  );
+
+
+const cameraInput =
+  document.getElementById(
+    "cameraInput"
+  );
+
+
+const autoDetectBtn =
+  document.getElementById(
+    "autoDetectBtn"
+  );
+
+
+const resetBtn =
+  document.getElementById(
+    "resetBtn"
+  );
+
+
+const toast =
+  document.getElementById(
+    "toast"
+  );
+
+
+const loading =
+  document.getElementById(
+    "loading"
+  );
+
+
+const loadingText =
+  document.getElementById(
+    "loadingText"
+  );
+
+
+const resultPage =
+  document.getElementById(
+    "resultPage"
+  );
+
+
+const resultCanvas =
+  document.getElementById(
+    "resultCanvas"
+  );
+
+
+const resultCtx =
+  resultCanvas.getContext(
+    "2d"
+  );
+
+
+
+/* =========================================================
+   狀態
+========================================================= */
+
+let img =
+  null;
+
+
+let viewW =
+  0;
+
+
+let viewH =
+  0;
+
+
+let fitScale =
+  1;
+
+
+let zoom =
+  1;
+
+
+let panX =
+  0;
+
+
+let panY =
+  0;
+
+
+/*
+0 左上
+1 右上
+2 右下
+3 左下
+
+全部直接存原圖座標
+*/
+
+let points =
+  [];
+
+
+let draggedPoint =
+  -1;
+
+
+let dragPointerId =
+  null;
+
+
+let lastPanPosition =
+  null;
+
+
+let pinch =
+  null;
+
+
+const activePointers =
+  new Map();
+
+
+let crossColor =
+  "#ffffff";
+
+
+let lastLoupeImagePoint =
+  null;
+
+
+let lastLoupeFingerPoint =
+  null;
+
+
+const HANDLE_RADIUS =
+  12;
+
+
+const HIT_RADIUS =
+  46;
+
+
+const MIN_ZOOM =
+  1;
+
+
+const MAX_ZOOM =
+  8;
+
+
+
+/* =========================================================
+   Toast
+========================================================= */
+
+let toastTimer =
+  null;
+
+
+function showToast(text){
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toast.textContent =
+    text;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  toastTimer =
+    setTimeout(
+      () => {
+
+        toast.classList.remove(
+          "show"
+        );
+
+      },
+      2600
+    );
+
+}
+
+
+
+/* =========================================================
+   Loading
+========================================================= */
+
+function showLoading(text){
+
+  loadingText.textContent =
+    text;
+
+
+  loading.style.display =
+    "flex";
+
+}
+
+
+function hideLoading(){
+
+  loading.style.display =
+    "none";
+
+}
+
+
+function allowPaint(){
+
+  return new Promise(
+    resolve => {
+
+      requestAnimationFrame(
+        () => {
+
+          requestAnimationFrame(
+            resolve
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+
+/* =========================================================
+   Utils
+========================================================= */
+
+function clamp(
+  value,
+  min,
+  max
+){
+
+  return Math.max(
+
+    min,
+
+    Math.min(
+      max,
+      value
+    )
+
+  );
+
+}
+
+
+function pointDistance(
+  a,
+  b
+){
+
+  return Math.hypot(
+
+    b.x -
+    a.x,
+
+    b.y -
+    a.y
+
+  );
+
+}
+
+
+
+/* =========================================================
+   十字顏色
+========================================================= */
+
+crossColorInput.addEventListener(
+  "input",
+  e => {
+
+    crossColor =
+      e.target.value;
+
+
+    if(
+      loupe.style.display ===
+      "block"
+
+      &&
+
+      lastLoupeImagePoint
+
+      &&
+
+      lastLoupeFingerPoint
+    ){
+
+      showLoupe(
+
+        lastLoupeImagePoint,
+
+        lastLoupeFingerPoint
+
+      );
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   上傳
+========================================================= */
+
+function openUpload(){
+
+  uploadInput.value =
+    "";
+
+
+  uploadInput.click();
+
+}
+
+
+function openCamera(){
+
+  cameraInput.value =
+    "";
+
+
+  cameraInput.click();
+
+}
+
+
+document.getElementById(
+  "mainUpload"
+).onclick =
+  openUpload;
+
+
+document.getElementById(
+  "topUpload"
+).onclick =
+  openUpload;
+
+
+document.getElementById(
+  "mainCamera"
+).onclick =
+  openCamera;
+
+
+document.getElementById(
+  "topCamera"
+).onclick =
+  openCamera;
+
+
+uploadInput.onchange =
+  e => {
+
+    loadFile(
+      e.target.files[0]
+    );
+
+  };
+
+
+cameraInput.onchange =
+  e => {
+
+    loadFile(
+      e.target.files[0]
+    );
+
+  };
+
+
+function loadFile(file){
+
+  if(!file){
+    return;
+  }
+
+
+  const url =
+    URL.createObjectURL(
+      file
+    );
+
+
+  const image =
+    new Image();
+
+
+  image.onload =
+    () => {
+
+      img =
+        image;
+
+
+      zoom =
+        1;
+
+
+      panX =
+        0;
+
+
+      panY =
+        0;
+
+
+      empty.style.display =
+        "none";
+
+
+      bottomBar.style.display =
+        "flex";
+
+
+      zoomControls.style.display =
+        "flex";
+
+
+      crossColorControl.style.display =
+        "flex";
+
+
+      autoDetectBtn.disabled =
+        false;
+
+
+      resetBtn.disabled =
+        false;
+
+
+      resizeCanvas();
+
+
+      resetPoints();
+
+
+      URL.revokeObjectURL(
+        url
+      );
+
+
+      showToast(
+        "可以按「自動偵測」，再手動微調四角"
+      );
+
+    };
+
+
+  image.onerror =
+    () => {
+
+      URL.revokeObjectURL(
+        url
+      );
+
+
+      alert(
+        "這張圖片無法讀取"
+      );
+
+    };
+
+
+  image.src =
+    url;
+
+}
+
+
+
+/* =========================================================
+   Canvas
+========================================================= */
+
+function resizeCanvas(){
+
+  const rect =
+    stage.getBoundingClientRect();
+
+
+  viewW =
+    rect.width;
+
+
+  viewH =
+    rect.height;
+
+
+  const dpr =
+    window.devicePixelRatio ||
+    1;
+
+
+  canvas.width =
+    Math.round(
+      viewW *
+      dpr
+    );
+
+
+  canvas.height =
+    Math.round(
+      viewH *
+      dpr
+    );
+
+
+  canvas.style.width =
+    viewW +
+    "px";
+
+
+  canvas.style.height =
+    viewH +
+    "px";
+
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+
+
+  if(img){
+
+    calculateFitScale();
+
+    draw();
+
+  }
+
+}
+
+
+
+function calculateFitScale(){
+
+  fitScale =
+    Math.min(
+
+      viewW /
+      img.naturalWidth,
+
+      viewH /
+      img.naturalHeight
+
+    );
+
+}
+
+
+function getScale(){
+
+  return (
+    fitScale *
+    zoom
+  );
+
+}
+
+
+function getImageRect(){
+
+  const scale =
+    getScale();
+
+
+  const width =
+    img.naturalWidth *
+    scale;
+
+
+  const height =
+    img.naturalHeight *
+    scale;
+
+
+  return {
+
+    x:
+      (
+        viewW -
+        width
+      )
+      /
+      2
+      +
+      panX,
+
+
+    y:
+      (
+        viewH -
+        height
+      )
+      /
+      2
+      +
+      panY,
+
+
+    w:
+      width,
+
+
+    h:
+      height
+
+  };
+
+}
+
+
+function imageToScreen(point){
+
+  const rect =
+    getImageRect();
+
+
+  const scale =
+    getScale();
+
+
+  return {
+
+    x:
+      rect.x +
+      point.x *
+      scale,
+
+
+    y:
+      rect.y +
+      point.y *
+      scale
+
+  };
+
+}
+
+
+function screenToImage(point){
+
+  const rect =
+    getImageRect();
+
+
+  const scale =
+    getScale();
+
+
+  return {
+
+    x:
+      (
+        point.x -
+        rect.x
+      )
+      /
+      scale,
+
+
+    y:
+      (
+        point.y -
+        rect.y
+      )
+      /
+      scale
+
+  };
+
+}
+
+
+
+/* =========================================================
+   重設
+========================================================= */
+
+function resetPoints(){
+
+  if(!img){
+    return;
+  }
+
+
+  const padX =
+    (
+      img.naturalWidth -
+      1
+    )
+    *
+    .07;
+
+
+  const padY =
+    (
+      img.naturalHeight -
+      1
+    )
+    *
+    .07;
+
+
+  points = [
+
+    {
+      x:
+        padX,
+
+      y:
+        padY
+    },
+
+
+    {
+      x:
+        img.naturalWidth -
+        1 -
+        padX,
+
+      y:
+        padY
+    },
+
+
+    {
+      x:
+        img.naturalWidth -
+        1 -
+        padX,
+
+      y:
+        img.naturalHeight -
+        1 -
+        padY
+    },
+
+
+    {
+      x:
+        padX,
+
+      y:
+        img.naturalHeight -
+        1 -
+        padY
+    }
+
+  ];
+
+
+  zoom =
+    1;
+
+
+  panX =
+    0;
+
+
+  panY =
+    0;
+
+
+  updateZoomText();
+
+
+  draw();
+
+}
+
+
+resetBtn.onclick =
+  resetPoints;
+
+
+
+/* =========================================================
+   Draw
+========================================================= */
+
+function makeQuadPath(p){
+
+  ctx.beginPath();
+
+
+  ctx.moveTo(
+    p[0].x,
+    p[0].y
+  );
+
+
+  ctx.lineTo(
+    p[1].x,
+    p[1].y
+  );
+
+
+  ctx.lineTo(
+    p[2].x,
+    p[2].y
+  );
+
+
+  ctx.lineTo(
+    p[3].x,
+    p[3].y
+  );
+
+
+  ctx.closePath();
+
+}
+
+
+function drawHandle(
+  point,
+  active
+){
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+
+    point.x,
+    point.y,
+
+    active
+      ? 16
+      : HANDLE_RADIUS,
+
+    0,
+    Math.PI *
+    2
+
+  );
+
+
+  ctx.fillStyle =
+    active
+      ? "rgba(255,255,255,.38)"
+      : "rgba(255,255,255,.14)";
+
+
+  ctx.fill();
+
+
+  ctx.lineWidth =
+    active
+      ? 3
+      : 2;
+
+
+  ctx.strokeStyle =
+    "#fff";
+
+
+  ctx.stroke();
+
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+    point.x,
+    point.y,
+    3,
+    0,
+    Math.PI *
+    2
+  );
+
+
+  ctx.fillStyle =
+    "#fff";
+
+
+  ctx.fill();
+
+}
+
+
+function draw(){
+
+  ctx.clearRect(
+    0,
+    0,
+    viewW,
+    viewH
+  );
+
+
+  ctx.fillStyle =
+    "#242424";
+
+
+  ctx.fillRect(
+    0,
+    0,
+    viewW,
+    viewH
+  );
+
+
+  if(!img){
+    return;
+  }
+
+
+  const rect =
+    getImageRect();
+
+
+  ctx.drawImage(
+
+    img,
+
+    rect.x,
+    rect.y,
+
+    rect.w,
+    rect.h
+
+  );
+
+
+  if(
+    points.length !==
+    4
+  ){
+    return;
+  }
+
+
+  const screenPoints =
+    points.map(
+      imageToScreen
+    );
+
+
+  ctx.save();
+
+
+  ctx.fillStyle =
+    "rgba(0,0,0,.45)";
+
+
+  ctx.fillRect(
+
+    rect.x,
+    rect.y,
+
+    rect.w,
+    rect.h
+
+  );
+
+
+  ctx.restore();
+
+
+  ctx.save();
+
+
+  makeQuadPath(
+    screenPoints
+  );
+
+
+  ctx.clip();
+
+
+  ctx.drawImage(
+
+    img,
+
+    rect.x,
+    rect.y,
+
+    rect.w,
+    rect.h
+
+  );
+
+
+  ctx.restore();
+
+
+  ctx.save();
+
+
+  makeQuadPath(
+    screenPoints
+  );
+
+
+  ctx.lineWidth =
+    2;
+
+
+  ctx.strokeStyle =
+    "#fff";
+
+
+  ctx.stroke();
+
+
+  ctx.restore();
+
+
+  screenPoints.forEach(
+    (point,index) => {
+
+      drawHandle(
+
+        point,
+
+        index ===
+        draggedPoint
+
+      );
+
+    }
+  );
+
+}
+
+
+
+/* =========================================================
+   放大鏡
+   ★ 這版不會因為靠近原圖邊緣而扭曲
+========================================================= */
+
+function showLoupe(
+  imagePoint,
+  fingerPoint
+){
+
+  lastLoupeImagePoint = {
+
+    ...imagePoint
+
+  };
+
+
+  lastLoupeFingerPoint = {
+
+    ...fingerPoint
+
+  };
+
+
+  const cssSize =
+    parseFloat(
+
+      getComputedStyle(
+        loupe
+      ).width
+
+    );
+
+
+  const dpr =
+    window.devicePixelRatio ||
+    1;
+
+
+  loupe.width =
+    Math.round(
+      cssSize *
+      dpr
+    );
+
+
+  loupe.height =
+    Math.round(
+      cssSize *
+      dpr
+    );
+
+
+  loupeCtx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+
+
+  loupeCtx.clearRect(
+    0,
+    0,
+    cssSize,
+    cssSize
+  );
+
+
+  const center =
+    cssSize /
+    2;
+
+
+  const MAG =
+    5;
+
+
+  /*
+  重點：
+  不再用 drawImage 的 source rectangle。
+
+  而是把「真正的原圖座標」
+  直接移到放大鏡正中央。
+
+  所以就算 point 在：
+  x = 0
+  x = width - 1
+  y = 0
+  y = height - 1
+
+  都不會被重新縮放、歪掉或偏移。
+  */
+
+  const localScale =
+    getScale() *
+    MAG;
+
+
+  loupeCtx.save();
+
+
+  loupeCtx.beginPath();
+
+
+  loupeCtx.arc(
+    center,
+    center,
+    center,
+    0,
+    Math.PI *
+    2
+  );
+
+
+  loupeCtx.clip();
+
+
+  loupeCtx.fillStyle =
+    "#111";
+
+
+  loupeCtx.fillRect(
+    0,
+    0,
+    cssSize,
+    cssSize
+  );
+
+
+  loupeCtx.imageSmoothingEnabled =
+    true;
+
+
+  loupeCtx.imageSmoothingQuality =
+    "high";
+
+
+  loupeCtx.translate(
+    center,
+    center
+  );
+
+
+  loupeCtx.scale(
+    localScale,
+    localScale
+  );
+
+
+  loupeCtx.drawImage(
+
+    img,
+
+    -imagePoint.x,
+    -imagePoint.y
+
+  );
+
+
+  loupeCtx.restore();
+
+
+  /*
+  十字
+  */
+
+  loupeCtx.strokeStyle =
+    crossColor;
+
+
+  loupeCtx.fillStyle =
+    crossColor;
+
+
+  loupeCtx.lineWidth =
+    1.8;
+
+
+  /*
+  水平線碰到圓框
+  */
+
+  loupeCtx.beginPath();
+
+
+  loupeCtx.moveTo(
+    0,
+    center
+  );
+
+
+  loupeCtx.lineTo(
+    cssSize,
+    center
+  );
+
+
+  loupeCtx.stroke();
+
+
+  /*
+  垂直線碰到圓框
+  */
+
+  loupeCtx.beginPath();
+
+
+  loupeCtx.moveTo(
+    center,
+    0
+  );
+
+
+  loupeCtx.lineTo(
+    center,
+    cssSize
+  );
+
+
+  loupeCtx.stroke();
+
+
+  /*
+  中心小圓
+  */
+
+  loupeCtx.beginPath();
+
+
+  loupeCtx.arc(
+    center,
+    center,
+    5,
+    0,
+    Math.PI *
+    2
+  );
+
+
+  loupeCtx.stroke();
+
+
+  /*
+  真正的控制點中心
+  */
+
+  loupeCtx.beginPath();
+
+
+  loupeCtx.arc(
+    center,
+    center,
+    1.8,
+    0,
+    Math.PI *
+    2
+  );
+
+
+  loupeCtx.fill();
+
+
+  /*
+  放大鏡位置
+  */
+
+  let left =
+    fingerPoint.x -
+    cssSize /
+    2;
+
+
+  let top =
+    fingerPoint.y -
+    cssSize -
+    65;
+
+
+  /*
+  上面放不下就移到下面。
+
+  注意：
+  這只改放大鏡「顯示在哪裡」，
+  不會改裡面的中心座標。
+  */
+
+  if(
+    top <
+    8
+  ){
+
+    top =
+      fingerPoint.y +
+      55;
+
+  }
+
+
+  left =
+    clamp(
+
+      left,
+
+      8,
+
+      Math.max(
+        8,
+        viewW -
+        cssSize -
+        8
+      )
+
+    );
+
+
+  top =
+    clamp(
+
+      top,
+
+      8,
+
+      Math.max(
+        8,
+        viewH -
+        cssSize -
+        8
+      )
+
+    );
+
+
+  loupe.style.left =
+    left +
+    "px";
+
+
+  loupe.style.top =
+    top +
+    "px";
+
+
+  loupe.style.display =
+    "block";
+
+}
+
+
+function hideLoupe(){
+
+  loupe.style.display =
+    "none";
+
+
+  lastLoupeImagePoint =
+    null;
+
+
+  lastLoupeFingerPoint =
+    null;
+
+}
+
+
+
+/* =========================================================
+   Pointer
+========================================================= */
+
+function pointerPosition(e){
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+
+  return {
+
+    x:
+      e.clientX -
+      rect.left,
+
+
+    y:
+      e.clientY -
+      rect.top
+
+  };
+
+}
+
+
+canvas.addEventListener(
+  "pointerdown",
+  e => {
+
+    if(!img){
+      return;
+    }
+
+
+    e.preventDefault();
+
+
+    const pointer =
+      pointerPosition(e);
+
+
+    const screenPoints =
+      points.map(
+        imageToScreen
+      );
+
+
+    let best =
+      -1;
+
+
+    let bestDistance =
+      HIT_RADIUS;
+
+
+    screenPoints.forEach(
+      (point,index) => {
+
+        const distance =
+          Math.hypot(
+
+            pointer.x -
+            point.x,
+
+            pointer.y -
+            point.y
+
+          );
+
+
+        if(
+          distance <
+          bestDistance
+        ){
+
+          bestDistance =
+            distance;
+
+
+          best =
+            index;
+
+        }
+
+      }
+    );
+
+
+    /*
+    按到四角
+    */
+
+    if(
+      best !==
+      -1
+
+      &&
+
+      activePointers.size ===
+      0
+    ){
+
+      draggedPoint =
+        best;
+
+
+      dragPointerId =
+        e.pointerId;
+
+
+      canvas.setPointerCapture(
+        e.pointerId
+      );
+
+
+      draw();
+
+
+      showLoupe(
+
+        points[
+          best
+        ],
+
+        pointer
+
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+    移動畫面 / 雙指
+    */
+
+    activePointers.set(
+      e.pointerId,
+      pointer
+    );
+
+
+    canvas.setPointerCapture(
+      e.pointerId
+    );
+
+
+    if(
+      activePointers.size ===
+      1
+    ){
+
+      lastPanPosition =
+        pointer;
+
+    }
+
+
+    if(
+      activePointers.size ===
+      2
+    ){
+
+      beginPinch();
+
+    }
+
+  }
+);
+
+
+canvas.addEventListener(
+  "pointermove",
+  e => {
+
+    if(!img){
+      return;
+    }
+
+
+    const pointer =
+      pointerPosition(e);
+
+
+    /*
+    拖四角
+    */
+
+    if(
+      e.pointerId ===
+      dragPointerId
+    ){
+
+      let point =
+        screenToImage(
+          pointer
+        );
+
+
+      point.x =
+        clamp(
+
+          point.x,
+
+          0,
+
+          img.naturalWidth -
+          1
+
+        );
+
+
+      point.y =
+        clamp(
+
+          point.y,
+
+          0,
+
+          img.naturalHeight -
+          1
+
+        );
+
+
+      points[
+        draggedPoint
+      ] = {
+
+        x:
+          point.x,
+
+        y:
+          point.y
+
+      };
+
+
+      draw();
+
+
+      showLoupe(
+
+        points[
+          draggedPoint
+        ],
+
+        pointer
+
+      );
+
+
+      return;
+
+    }
+
+
+    if(
+      !activePointers.has(
+        e.pointerId
+      )
+    ){
+
+      return;
+
+    }
+
+
+    activePointers.set(
+      e.pointerId,
+      pointer
+    );
+
+
+    if(
+      activePointers.size >=
+      2
+    ){
+
+      handlePinch();
+
+      return;
+
+    }
+
+
+    if(
+      activePointers.size ===
+      1
+
+      &&
+
+      lastPanPosition
+    ){
+
+      panX +=
+
+        pointer.x -
+        lastPanPosition.x;
+
+
+      panY +=
+
+        pointer.y -
+        lastPanPosition.y;
+
+
+      lastPanPosition =
+        pointer;
+
+
+      draw();
+
+    }
+
+  }
+);
+
+
+function endPointer(e){
+
+  if(
+    e.pointerId ===
+    dragPointerId
+  ){
+
+    draggedPoint =
+      -1;
+
+
+    dragPointerId =
+      null;
+
+
+    hideLoupe();
+
+
+    draw();
+
+
+    return;
+
+  }
+
+
+  activePointers.delete(
+    e.pointerId
+  );
+
+
+  pinch =
+    null;
+
+
+  if(
+    activePointers.size ===
+    1
+  ){
+
+    lastPanPosition =
+      [
+        ...activePointers.values()
+      ][0];
+
+  }
+
+  else{
+
+    lastPanPosition =
+      null;
+
+  }
+
+}
+
+
+canvas.addEventListener(
+  "pointerup",
+  endPointer
+);
+
+
+canvas.addEventListener(
+  "pointercancel",
+  endPointer
+);
+
+
+
+/* =========================================================
+   Pinch
+========================================================= */
+
+function beginPinch(){
+
+  const values =
+    [
+      ...activePointers.values()
+    ];
+
+
+  if(
+    values.length <
+    2
+  ){
+    return;
+  }
+
+
+  const p1 =
+    values[0];
+
+
+  const p2 =
+    values[1];
+
+
+  const center = {
+
+    x:
+      (
+        p1.x +
+        p2.x
+      )
+      /
+      2,
+
+
+    y:
+      (
+        p1.y +
+        p2.y
+      )
+      /
+      2
+
+  };
+
+
+  pinch = {
+
+    distance:
+      Math.hypot(
+
+        p2.x -
+        p1.x,
+
+        p2.y -
+        p1.y
+
+      ),
+
+
+    startZoom:
+      zoom,
+
+
+    anchor:
+      screenToImage(
+        center
+      )
+
+  };
+
+}
+
+
+function handlePinch(){
+
+  const values =
+    [
+      ...activePointers.values()
+    ];
+
+
+  if(
+    values.length <
+    2
+  ){
+    return;
+  }
+
+
+  if(!pinch){
+
+    beginPinch();
+
+    return;
+
+  }
+
+
+  const p1 =
+    values[0];
+
+
+  const p2 =
+    values[1];
+
+
+  const center = {
+
+    x:
+      (
+        p1.x +
+        p2.x
+      )
+      /
+      2,
+
+
+    y:
+      (
+        p1.y +
+        p2.y
+      )
+      /
+      2
+
+  };
+
+
+  const distance =
+    Math.hypot(
+
+      p2.x -
+      p1.x,
+
+      p2.y -
+      p1.y
+
+    );
+
+
+  zoom =
+    clamp(
+
+      pinch.startZoom *
+      (
+        distance /
+        pinch.distance
+      ),
+
+      MIN_ZOOM,
+
+      MAX_ZOOM
+
+    );
+
+
+  const scale =
+    getScale();
+
+
+  const width =
+    img.naturalWidth *
+    scale;
+
+
+  const height =
+    img.naturalHeight *
+    scale;
+
+
+  panX =
+
+    center.x
+
+    -
+
+    (
+      viewW -
+      width
+    )
+    /
+    2
+
+    -
+
+    pinch.anchor.x *
+    scale;
+
+
+  panY =
+
+    center.y
+
+    -
+
+    (
+      viewH -
+      height
+    )
+    /
+    2
+
+    -
+
+    pinch.anchor.y *
+    scale;
+
+
+  updateZoomText();
+
+
+  draw();
+
+}
+
+
+
+/* =========================================================
+   Zoom buttons
+========================================================= */
+
+function zoomAroundCenter(
+  newZoom
+){
+
+  if(!img){
+    return;
+  }
+
+
+  const center = {
+
+    x:
+      viewW /
+      2,
+
+    y:
+      viewH /
+      2
+
+  };
+
+
+  const anchor =
+    screenToImage(
+      center
+    );
+
+
+  zoom =
+    clamp(
+
+      newZoom,
+
+      MIN_ZOOM,
+
+      MAX_ZOOM
+
+    );
+
+
+  const scale =
+    getScale();
+
+
+  const width =
+    img.naturalWidth *
+    scale;
+
+
+  const height =
+    img.naturalHeight *
+    scale;
+
+
+  panX =
+
+    center.x
+
+    -
+
+    (
+      viewW -
+      width
+    )
+    /
+    2
+
+    -
+
+    anchor.x *
+    scale;
+
+
+  panY =
+
+    center.y
+
+    -
+
+    (
+      viewH -
+      height
+    )
+    /
+    2
+
+    -
+
+    anchor.y *
+    scale;
+
+
+  updateZoomText();
+
+
+  draw();
+
+}
+
+
+document.getElementById(
+  "zoomIn"
+).onclick =
+  () => {
+
+    zoomAroundCenter(
+      zoom *
+      1.4
+    );
+
+  };
+
+
+document.getElementById(
+  "zoomOut"
+).onclick =
+  () => {
+
+    const next =
+      zoom /
+      1.4;
+
+
+    if(
+      next <=
+      1.02
+    ){
+
+      zoom =
+        1;
+
+
+      panX =
+        0;
+
+
+      panY =
+        0;
+
+
+      updateZoomText();
+
+
+      draw();
+
+    }
+
+    else{
+
+      zoomAroundCenter(
+        next
+      );
+
+    }
+
+  };
+
+
+function updateZoomText(){
+
+  zoomText.textContent =
+    Math.round(
+      zoom *
+      100
+    )
+    +
+    "%";
+
+}
+
+
+
+/* =========================================================
+   自動偵測
+========================================================= */
+
+autoDetectBtn.onclick =
+  autoDetect;
+
+
+/*
+新的偵測方式：
+
+1. 圖片縮小到適合分析的大小
+2. 灰階
+3. 高斯模糊
+4. Sobel 邊緣
+5. 用梯度方向做 Hough 直線投票
+6. 找可能的成對邊線
+7. 將兩組邊線組成四邊形
+8. 對每個四邊形檢查：
+   - 面積
+   - 邊緣吻合程度
+   - 角度
+   - 是否合理
+9. 對最佳四條邊再次做線性擬合
+10. 信心不足就不移動控制點
+*/
+
+
+function percentile(
+  array,
+  p
+){
+
+  const copy =
+    Array.from(
+      array
+    );
+
+
+  copy.sort(
+    (a,b) =>
+      a -
+      b
+  );
+
+
+  return copy[
+    Math.min(
+
+      copy.length -
+      1,
+
+      Math.max(
+        0,
+        Math.floor(
+          copy.length *
+          p
+        )
+      )
+
+    )
+  ]
+  ||
+  0;
+
+}
+
+
+function angleDiffPi(
+  a,
+  b
+){
+
+  let diff =
+    Math.abs(
+      a -
+      b
+    )
+    %
+    Math.PI;
+
+
+  return Math.min(
+    diff,
+    Math.PI -
+    diff
+  );
+
+}
+
+
+function lineIntersection(
+  l1,
+  l2
+){
+
+  const det =
+
+    l1.a *
+    l2.b
+
+    -
+
+    l2.a *
+    l1.b;
+
+
+  if(
+    Math.abs(
+      det
+    )
+    <
+    1e-8
+  ){
+
+    return null;
+
+  }
+
+
+  return {
+
+    x:
+      (
+        l1.b *
+        l2.c
+
+        -
+
+        l2.b *
+        l1.c
+      )
+      /
+      det,
+
+
+    y:
+      (
+        l1.c *
+        l2.a
+
+        -
+
+        l2.c *
+        l1.a
+      )
+      /
+      det
+
+  };
+
+}
+
+
+function polygonArea(p){
+
+  let sum =
+    0;
+
+
+  for(
+    let i = 0;
+    i < p.length;
+    i++
+  ){
+
+    const a =
+      p[i];
+
+
+    const b =
+      p[
+        (
+          i +
+          1
+        )
+        %
+        p.length
+      ];
+
+
+    sum +=
+
+      a.x *
+      b.y
+
+      -
+
+      a.y *
+      b.x;
+
+  }
+
+
+  return (
+    Math.abs(
+      sum
+    )
+    /
+    2
+  );
+
+}
+
+
+function orderCorners(points){
+
+  const sorted =
+    [
+      ...points
+    ].sort(
+      (a,b) =>
+        a.y -
+        b.y
+    );
+
+
+  const top =
+    sorted
+      .slice(
+        0,
+        2
+      )
+      .sort(
+        (a,b) =>
+          a.x -
+          b.x
+      );
+
+
+  const bottom =
+    sorted
+      .slice(
+        2
+      )
+      .sort(
+        (a,b) =>
+          a.x -
+          b.x
+      );
+
+
+  return [
+
+    top[0],
+    top[1],
+
+    bottom[1],
+    bottom[0]
+
+  ];
+
+}
+
+
+
+/* =========================================================
+   計算某一條候選邊
+   到底有多少真實邊緣吻合
+========================================================= */
+
+function sideSupport(
+  a,
+  b,
+  magnitude,
+  width,
+  height,
+  threshold
+){
+
+  const length =
+    Math.hypot(
+
+      b.x -
+      a.x,
+
+      b.y -
+      a.y
+
+    );
+
+
+  if(
+    length <
+    12
+  ){
+
+    return 0;
+
+  }
+
+
+  const samples =
+    Math.min(
+
+      140,
+
+      Math.max(
+
+        30,
+
+        Math.round(
+          length /
+          4
+        )
+
+      )
+
+    );
+
+
+  let supported =
+    0;
+
+
+  let strength =
+    0;
+
+
+  for(
+    let i = 0;
+    i <= samples;
+    i++
+  ){
+
+    const t =
+      i /
+      samples;
+
+
+    const x =
+
+      a.x
+
+      +
+
+      (
+        b.x -
+        a.x
+      )
+      *
+      t;
+
+
+    const y =
+
+      a.y
+
+      +
+
+      (
+        b.y -
+        a.y
+      )
+      *
+      t;
+
+
+    const ix =
+      Math.round(
+        x
+      );
+
+
+    const iy =
+      Math.round(
+        y
+      );
+
+
+    let best =
+      0;
+
+
+    /*
+    附近 5×5 內找最強邊緣
+    */
+
+    for(
+      let yy = -2;
+      yy <= 2;
+      yy++
+    ){
+
+      for(
+        let xx = -2;
+        xx <= 2;
+        xx++
+      ){
+
+        const nx =
+          ix +
+          xx;
+
+
+        const ny =
+          iy +
+          yy;
+
+
+        if(
+          nx >= 0
+
+          &&
+
+          ny >= 0
+
+          &&
+
+          nx <
+          width
+
+          &&
+
+          ny <
+          height
+        ){
+
+          const value =
+            magnitude[
+              ny *
+              width +
+              nx
+            ];
+
+
+          if(
+            value >
+            best
+          ){
+
+            best =
+              value;
+
+          }
+
+        }
+
+      }
+
+    }
+
+
+    if(
+      best >
+      threshold *
+      .72
+    ){
+
+      supported++;
+
+    }
+
+
+    strength +=
+      Math.min(
+
+        3,
+
+        best /
+        Math.max(
+          1,
+          threshold
+        )
+
+      );
+
+  }
+
+
+  const count =
+    samples +
+    1;
+
+
+  return (
+
+    .72 *
+    (
+      supported /
+      count
+    )
+
+    +
+
+    .28 *
+    (
+      strength /
+      count /
+      3
+    )
+
+  );
+
+}
+
+
+function quadSupport(
+  q,
+  magnitude,
+  width,
+  height,
+  threshold
+){
+
+  return (
+
+    sideSupport(
+      q[0],
+      q[1],
+      magnitude,
+      width,
+      height,
+      threshold
+    )
+
+    +
+
+    sideSupport(
+      q[1],
+      q[2],
+      magnitude,
+      width,
+      height,
+      threshold
+    )
+
+    +
+
+    sideSupport(
+      q[2],
+      q[3],
+      magnitude,
+      width,
+      height,
+      threshold
+    )
+
+    +
+
+    sideSupport(
+      q[3],
+      q[0],
+      magnitude,
+      width,
+      height,
+      threshold
+    )
+
+  )
+  /
+  4;
+
+}
+
+
+
+/* =========================================================
+   過度奇怪的四邊形降分
+========================================================= */
+
+function internalAngleScore(q){
+
+  let score =
+    1;
+
+
+  for(
+    let i = 0;
+    i < 4;
+    i++
+  ){
+
+    const prev =
+      q[
+        (
+          i +
+          3
+        )
+        %
+        4
+      ];
+
+
+    const current =
+      q[i];
+
+
+    const next =
+      q[
+        (
+          i +
+          1
+        )
+        %
+        4
+      ];
+
+
+    const v1 = {
+
+      x:
+        prev.x -
+        current.x,
+
+      y:
+        prev.y -
+        current.y
+
+    };
+
+
+    const v2 = {
+
+      x:
+        next.x -
+        current.x,
+
+      y:
+        next.y -
+        current.y
+
+    };
+
+
+    const dot =
+      (
+        v1.x *
+        v2.x
+
+        +
+
+        v1.y *
+        v2.y
+      )
+      /
+      (
+        Math.hypot(
+          v1.x,
+          v1.y
+        )
+
+        *
+
+        Math.hypot(
+          v2.x,
+          v2.y
+        )
+
+        +
+
+        1e-9
+      );
+
+
+    const angle =
+
+      Math.acos(
+        clamp(
+          dot,
+          -1,
+          1
+        )
+      )
+
+      *
+
+      180 /
+      Math.PI;
+
+
+    /*
+    太尖或太扁的四邊形
+    直接不要
+    */
+
+    if(
+      angle <
+      35
+
+      ||
+
+      angle >
+      145
+    ){
+
+      return 0;
+
+    }
+
+
+    score *=
+      Math.min(
+
+        1,
+
+        (
+          angle -
+          25
+        )
+        /
+        35,
+
+        (
+          155 -
+          angle
+        )
+        /
+        35
+
+      );
+
+  }
+
+
+  return score;
+
+}
+
+
+
+/* =========================================================
+   對候選四條邊再做一次線性擬合
+========================================================= */
+
+function fitSideLine(
+  initialA,
+  initialB,
+  edges,
+  maxDistance = 6
+){
+
+  const vx =
+    initialB.x -
+    initialA.x;
+
+
+  const vy =
+    initialB.y -
+    initialA.y;
+
+
+  const length =
+    Math.hypot(
+      vx,
+      vy
+    );
+
+
+  if(
+    length <
+    10
+  ){
+
+    return null;
+
+  }
+
+
+  const tx =
+    vx /
+    length;
+
+
+  const ty =
+    vy /
+    length;
+
+
+  const nx =
+    -ty;
+
+
+  const ny =
+    tx;
+
+
+  let weightSum =
+    0;
+
+
+  let sumX =
+    0;
+
+
+  let sumY =
+    0;
+
+
+  const selected =
+    [];
+
+
+  for(
+    const edge
+    of edges
+  ){
+
+    const dx =
+      edge.x -
+      initialA.x;
+
+
+    const dy =
+      edge.y -
+      initialA.y;
+
+
+    const projection =
+
+      dx *
+      tx
+
+      +
+
+      dy *
+      ty;
+
+
+    if(
+      projection <
+      -length *
+      .04
+
+      ||
+
+      projection >
+      length *
+      1.04
+    ){
+
+      continue;
+
+    }
+
+
+    const distance =
+      Math.abs(
+
+        dx *
+        nx
+
+        +
+
+        dy *
+        ny
+
+      );
+
+
+    if(
+      distance >
+      maxDistance
+    ){
+
+      continue;
+
+    }
+
+
+    const weight =
+
+      edge.mag /
+      (
+        1 +
+        distance
+      );
+
+
+    selected.push([
+
+      edge.x,
+      edge.y,
+      weight
+
+    ]);
+
+
+    weightSum +=
+      weight;
+
+
+    sumX +=
+      edge.x *
+      weight;
+
+
+    sumY +=
+      edge.y *
+      weight;
+
+  }
+
+
+  if(
+    selected.length <
+    12
+
+    ||
+
+    weightSum <=
+    0
+  ){
+
+    return null;
+
+  }
+
+
+  const centerX =
+    sumX /
+    weightSum;
+
+
+  const centerY =
+    sumY /
+    weightSum;
+
+
+  let sxx =
+    0;
+
+
+  let sxy =
+    0;
+
+
+  let syy =
+    0;
+
+
+  for(
+    const item
+    of selected
+  ){
+
+    const x =
+      item[0];
+
+
+    const y =
+      item[1];
+
+
+    const weight =
+      item[2];
+
+
+    const dx =
+      x -
+      centerX;
+
+
+    const dy =
+      y -
+      centerY;
+
+
+    sxx +=
+      weight *
+      dx *
+      dx;
+
+
+    sxy +=
+      weight *
+      dx *
+      dy;
+
+
+    syy +=
+      weight *
+      dy *
+      dy;
+
+  }
+
+
+  /*
+  PCA 主方向
+  */
+
+  const theta =
+    .5 *
+    Math.atan2(
+
+      2 *
+      sxy,
+
+      sxx -
+      syy
+
+    );
+
+
+  const fittedTX =
+    Math.cos(
+      theta
+    );
+
+
+  const fittedTY =
+    Math.sin(
+      theta
+    );
+
+
+  /*
+  法向量
+  */
+
+  const a =
+    -fittedTY;
+
+
+  const b =
+    fittedTX;
+
+
+  const c =
+    -(
+
+      a *
+      centerX
+
+      +
+
+      b *
+      centerY
+
+    );
+
+
+  return {
+
+    a,
+    b,
+    c
+
+  };
+
+}
+
+
+
+function refineQuad(
+  q,
+  edges,
+  width,
+  height
+){
+
+  const lines =
+    [];
+
+
+  for(
+    let i = 0;
+    i < 4;
+    i++
+  ){
+
+    const line =
+      fitSideLine(
+
+        q[i],
+
+        q[
+          (
+            i +
+            1
+          )
+          %
+          4
+        ],
+
+        edges,
+
+        Math.max(
+
+          4,
+
+          Math.min(
+            width,
+            height
+          )
+          *
+          .008
+
+        )
+
+      );
+
+
+    if(!line){
+
+      return q;
+
+    }
+
+
+    lines.push(
+      line
+    );
+
+  }
+
+
+  const p0 =
+    lineIntersection(
+      lines[3],
+      lines[0]
+    );
+
+
+  const p1 =
+    lineIntersection(
+      lines[0],
+      lines[1]
+    );
+
+
+  const p2 =
+    lineIntersection(
+      lines[1],
+      lines[2]
+    );
+
+
+  const p3 =
+    lineIntersection(
+      lines[2],
+      lines[3]
+    );
+
+
+  if(
+    !p0 ||
+    !p1 ||
+    !p2 ||
+    !p3
+  ){
+
+    return q;
+
+  }
+
+
+  const result = [
+
+    p0,
+    p1,
+    p2,
+    p3
+
+  ];
+
+
+  if(
+    result.some(
+      point =>
+
+        point.x <
+        0
+
+        ||
+
+        point.y <
+        0
+
+        ||
+
+        point.x >
+        width -
+        1
+
+        ||
+
+        point.y >
+        height -
+        1
+    )
+  ){
+
+    return q;
+
+  }
+
+
+  return result;
+
+}
+
+
+
+/* =========================================================
+   自動偵測主程式
+========================================================= */
+
+async function autoDetect(){
+
+  if(!img){
+    return;
+  }
+
+
+  autoDetectBtn.disabled =
+    true;
+
+
+  showLoading(
+    "正在重新分析卡片邊界…"
+  );
+
+
+  await allowPaint();
+
+
+  try{
+
+    /*
+    分析不需要用整張原始 4K，
+    約 760px 已經足夠找線，
+    最後再映射回原始座標。
+    */
+
+    const MAX_SIDE =
+      760;
+
+
+    const analysisScale =
+      Math.min(
+
+        1,
+
+        MAX_SIDE /
+        Math.max(
+
+          img.naturalWidth,
+          img.naturalHeight
+
+        )
+
+      );
+
+
+    const width =
+      Math.max(
+
+        80,
+
+        Math.round(
+
+          img.naturalWidth *
+          analysisScale
+
+        )
+
+      );
+
+
+    const height =
+      Math.max(
+
+        80,
+
+        Math.round(
+
+          img.naturalHeight *
+          analysisScale
+
+        )
+
+      );
+
+
+    /*
+    畫到分析 canvas
+    */
+
+    const workCanvas =
+      document.createElement(
+        "canvas"
+      );
+
+
+    workCanvas.width =
+      width;
+
+
+    workCanvas.height =
+      height;
+
+
+    const workCtx =
+      workCanvas.getContext(
+
+        "2d",
+
+        {
+          willReadFrequently:
+            true
+        }
+
+      );
+
+
+    workCtx.imageSmoothingEnabled =
+      true;
+
+
+    workCtx.imageSmoothingQuality =
+      "high";
+
+
+    workCtx.drawImage(
+
+      img,
+
+      0,
+      0,
+
+      width,
+      height
+
+    );
+
+
+    const imageData =
+      workCtx.getImageData(
+
+        0,
+        0,
+
+        width,
+        height
+
+      );
+
+
+    const rgba =
+      imageData.data;
+
+
+    const total =
+      width *
+      height;
+
+
+    const gray =
+      new Float32Array(
+        total
+      );
+
+
+    const temp =
+      new Float32Array(
+        total
+      );
+
+
+    const blurred =
+      new Float32Array(
+        total
+      );
+
+
+    const gx =
+      new Float32Array(
+        total
+      );
+
+
+    const gy =
+      new Float32Array(
+        total
+      );
+
+
+    const magnitude =
+      new Float32Array(
+        total
+      );
+
+
+    /*
+    灰階
+    */
+
+    for(
+      let i = 0;
+      i < total;
+      i++
+    ){
+
+      const p =
+        i *
+        4;
+
+
+      gray[i] =
+
+        rgba[p] *
+        .299
+
+        +
+
+        rgba[
+          p +
+          1
+        ]
+        *
+        .587
+
+        +
+
+        rgba[
+          p +
+          2
+        ]
+        *
+        .114;
+
+    }
+
+
+    /*
+    5-tap 高斯近似
+    [1 4 6 4 1] / 16
+    */
+
+    for(
+      let y = 0;
+      y < height;
+      y++
+    ){
+
+      for(
+        let x = 2;
+        x < width - 2;
+        x++
+      ){
+
+        const i =
+          y *
+          width +
+          x;
+
+
+        temp[i] =
+
+          (
+            gray[
+              i -
+              2
+            ]
+
+            +
+
+            4 *
+            gray[
+              i -
+              1
+            ]
+
+            +
+
+            6 *
+            gray[i]
+
+            +
+
+            4 *
+            gray[
+              i +
+              1
+            ]
+
+            +
+
+            gray[
+              i +
+              2
+            ]
+          )
+          /
+          16;
+
+      }
+
+    }
+
+
+    for(
+      let y = 2;
+      y < height - 2;
+      y++
+    ){
+
+      for(
+        let x = 0;
+        x < width;
+        x++
+      ){
+
+        const i =
+          y *
+          width +
+          x;
+
+
+        blurred[i] =
+
+          (
+            temp[
+              i -
+              2 *
+              width
+            ]
+
+            +
+
+            4 *
+            temp[
+              i -
+              width
+            ]
+
+            +
+
+            6 *
+            temp[i]
+
+            +
+
+            4 *
+            temp[
+              i +
+              width
+            ]
+
+            +
+
+            temp[
+              i +
+              2 *
+              width
+            ]
+          )
+          /
+          16;
+
+      }
+
+    }
+
+
+    /*
+    Sobel
+    */
+
+    const samples =
+      [];
+
+
+    for(
+      let y = 2;
+      y < height - 2;
+      y++
+    ){
+
+      for(
+        let x = 2;
+        x < width - 2;
+        x++
+      ){
+
+        const i =
+          y *
+          width +
+          x;
+
+
+        const upper =
+          (
+            y -
+            1
+          )
+          *
+          width;
+
+
+        const lower =
+          (
+            y +
+            1
+          )
+          *
+          width;
+
+
+        const sx =
+
+          -blurred[
+            upper +
+            x -
+            1
+          ]
+
+          +
+
+          blurred[
+            upper +
+            x +
+            1
+          ]
+
+          -
+
+          2 *
+          blurred[
+            i -
+            1
+          ]
+
+          +
+
+          2 *
+          blurred[
+            i +
+            1
+          ]
+
+          -
+
+          blurred[
+            lower +
+            x -
+            1
+          ]
+
+          +
+
+          blurred[
+            lower +
+            x +
+            1
+          ];
+
+
+        const sy =
+
+          -blurred[
+            upper +
+            x -
+            1
+          ]
+
+          -
+
+          2 *
+          blurred[
+            upper +
+            x
+          ]
+
+          -
+
+          blurred[
+            upper +
+            x +
+            1
+          ]
+
+          +
+
+          blurred[
+            lower +
+            x -
+            1
+          ]
+
+          +
+
+          2 *
+          blurred[
+            lower +
+            x
+          ]
+
+          +
+
+          blurred[
+            lower +
+            x +
+            1
+          ];
+
+
+        gx[i] =
+          sx;
+
+
+        gy[i] =
+          sy;
+
+
+        const mag =
+          Math.hypot(
+            sx,
+            sy
+          );
+
+
+        magnitude[i] =
+          mag;
+
+
+        if(
+          (
+            x &
+            1
+          )
+          ===
+          0
+
+          &&
+
+          (
+            y &
+            1
+          )
+          ===
+          0
+        ){
+
+          samples.push(
+            mag
+          );
+
+        }
+
+      }
+
+    }
+
+
+    /*
+    自動邊緣門檻
+    */
+
+    const threshold =
+      Math.max(
+
+        28,
+
+        percentile(
+          samples,
+          .80
+        )
+
+      );
+
+
+    /*
+    強邊緣列表
+    */
+
+    const allEdges =
+      [];
+
+
+    for(
+      let y = 2;
+      y < height - 2;
+      y++
+    ){
+
+      for(
+        let x = 2;
+        x < width - 2;
+        x++
+      ){
+
+        const i =
+          y *
+          width +
+          x;
+
+
+        if(
+          magnitude[i] >=
+          threshold
+        ){
+
+          allEdges.push({
+
+            x,
+            y,
+
+            mag:
+              magnitude[i],
+
+            gx:
+              gx[i],
+
+            gy:
+              gy[i]
+
+          });
+
+        }
+
+      }
+
+    }
+
+
+    if(
+      allEdges.length <
+      120
+    ){
+
+      throw new Error(
+        "EDGE_TOO_WEAK"
+      );
+
+    }
+
+
+    /*
+    避免背景超複雜時 Hough 太重
+    */
+
+    const maxEdges =
+      32000;
+
+
+    const stride =
+      Math.max(
+
+        1,
+
+        Math.ceil(
+
+          allEdges.length /
+          maxEdges
+
+        )
+
+      );
+
+
+    const edges =
+      [];
+
+
+    for(
+      let i = 0;
+      i < allEdges.length;
+      i += stride
+    ){
+
+      edges.push(
+        allEdges[i]
+      );
+
+    }
+
+
+    /*
+    Hough transform
+
+    和普通 Hough 不一樣：
+    每個邊緣像素只往它自己的
+    gradient normal 附近投票。
+
+    這樣背景裡亂七八糟的線
+    比較不容易蓋過卡片外框。
+    */
+
+    const thetaBins =
+      90;
+
+
+    const thetaStep =
+      Math.PI /
+      thetaBins;
+
+
+    const diagonal =
+      Math.hypot(
+        width,
+        height
+      );
+
+
+    const rhoStep =
+      3;
+
+
+    const rhoBins =
+      Math.ceil(
+
+        (
+          diagonal *
+          2
+        )
+        /
+        rhoStep
+
+      )
+      +
+      1;
+
+
+    const cosTable =
+      new Float32Array(
+        thetaBins
+      );
+
+
+    const sinTable =
+      new Float32Array(
+        thetaBins
+      );
+
+
+    for(
+      let t = 0;
+      t < thetaBins;
+      t++
+    ){
+
+      const theta =
+        t *
+        thetaStep;
+
+
+      cosTable[t] =
+        Math.cos(
+          theta
+        );
+
+
+      sinTable[t] =
+        Math.sin(
+          theta
+        );
+
+    }
+
+
+    const accumulator =
+      new Float32Array(
+
+        thetaBins *
+        rhoBins
+
+      );
+
+
+    let maxVote =
+      0;
+
+
+    for(
+      const edge
+      of edges
+    ){
+
+      let theta =
+        Math.atan2(
+
+          edge.gy,
+
+          edge.gx
+
+        );
+
+
+      if(
+        theta <
+        0
+      ){
+
+        theta +=
+          Math.PI;
+
+      }
+
+
+      if(
+        theta >=
+        Math.PI
+      ){
+
+        theta -=
+          Math.PI;
+
+      }
+
+
+      const base =
+
+        Math.round(
+          theta /
+          thetaStep
+        )
+        %
+        thetaBins;
+
+
+      /*
+      只往附近五個方向投票
+      */
+
+      for(
+        let delta = -2;
+        delta <= 2;
+        delta++
+      ){
+
+        const bin =
+
+          (
+            base +
+            delta +
+            thetaBins
+          )
+          %
+          thetaBins;
+
+
+        const rho =
+
+          edge.x *
+          cosTable[bin]
+
+          +
+
+          edge.y *
+          sinTable[bin];
+
+
+        const rhoBin =
+          Math.round(
+
+            (
+              rho +
+              diagonal
+            )
+            /
+            rhoStep
+
+          );
+
+
+        if(
+          rhoBin <
+          0
+
+          ||
+
+          rhoBin >=
+          rhoBins
+        ){
+
+          continue;
+
+        }
+
+
+        const orientationWeight =
+
+          delta === 0
+            ? 1
+            :
+          Math.abs(
+            delta
+          )
+          ===
+          1
+            ? .72
+            : .38;
+
+
+        const weight =
+
+          Math.min(
+
+            4,
+
+            edge.mag /
+            threshold
+
+          )
+
+          *
+
+          orientationWeight;
+
+
+        const index =
+          bin *
+          rhoBins +
+          rhoBin;
+
+
+        accumulator[index] +=
+          weight;
+
+
+        if(
+          accumulator[index] >
+          maxVote
+        ){
+
+          maxVote =
+            accumulator[index];
+
+        }
+
+      }
+
+    }
+
+
+    /*
+    找 Hough peaks
+    */
+
+    const rawLines =
+      [];
+
+
+    for(
+      let t = 0;
+      t < thetaBins;
+      t++
+    ){
+
+      for(
+        let r = 2;
+        r < rhoBins - 2;
+        r++
+      ){
+
+        const value =
+          accumulator[
+            t *
+            rhoBins +
+            r
+          ];
+
+
+        if(
+          value <
+          maxVote *
+          .13
+        ){
+
+          continue;
+
+        }
+
+
+        let localMax =
+          true;
+
+
+        for(
+          let dt = -1;
+          dt <= 1;
+          dt++
+        ){
+
+          for(
+            let dr = -2;
+            dr <= 2;
+            dr++
+          ){
+
+            if(
+              dt ===
+              0
+
+              &&
+
+              dr ===
+              0
+            ){
+
+              continue;
+
+            }
+
+
+            const tt =
+
+              (
+                t +
+                dt +
+                thetaBins
+              )
+              %
+              thetaBins;
+
+
+            if(
+              accumulator[
+                tt *
+                rhoBins +
+                r +
+                dr
+              ]
+              >
+              value
+            ){
+
+              localMax =
+                false;
+
+              break;
+
+            }
+
+          }
+
+
+          if(!localMax){
+            break;
+          }
+
+        }
+
+
+        if(
+          localMax
+        ){
+
+          rawLines.push({
+
+            theta:
+              t *
+              thetaStep,
+
+            rho:
+              r *
+              rhoStep -
+              diagonal,
+
+            score:
+              value
+
+          });
+
+        }
+
+      }
+
+    }
+
+
+    rawLines.sort(
+      (a,b) =>
+        b.score -
+        a.score
+    );
+
+
+    /*
+    去掉太接近的重複線
+    */
+
+    const lines =
+      [];
+
+
+    for(
+      const line
+      of rawLines
+    ){
+
+      const duplicated =
+        lines.some(
+          existing =>
+
+            angleDiffPi(
+
+              line.theta,
+
+              existing.theta
+
+            )
+            <
+            4 *
+            Math.PI /
+            180
+
+            &&
+
+            Math.abs(
+
+              line.rho -
+              existing.rho
+
+            )
+            <
+            12
+        );
+
+
+      if(
+        duplicated
+      ){
+
+        continue;
+
+      }
+
+
+      const a =
+        Math.cos(
+          line.theta
+        );
+
+
+      const b =
+        Math.sin(
+          line.theta
+        );
+
+
+      lines.push({
+
+        ...line,
+
+        a,
+        b,
+
+        c:
+          -line.rho
+
+      });
+
+
+      if(
+        lines.length >=
+        36
+      ){
+
+        break;
+
+      }
+
+    }
+
+
+    if(
+      lines.length <
+      4
+    ){
+
+      throw new Error(
+        "NO_LINES"
+      );
+
+    }
+
+
+    /*
+    將相近方向的兩條線
+    組成一組「對邊」
+    */
+
+    const centerX =
+      width /
+      2;
+
+
+    const centerY =
+      height /
+      2;
+
+
+    const pairs =
+      [];
+
+
+    for(
+      let i = 0;
+      i < lines.length;
+      i++
+    ){
+
+      for(
+        let j = i + 1;
+        j < lines.length;
+        j++
+      ){
+
+        const l1 =
+          lines[i];
+
+
+        const l2 =
+          lines[j];
+
+
+        const angleDiff =
+          angleDiffPi(
+
+            l1.theta,
+
+            l2.theta
+
+          );
+
+
+        /*
+        允許透視，
+        所以不是硬性平行
+        */
+
+        if(
+          angleDiff >
+          18 *
+          Math.PI /
+          180
+        ){
+
+          continue;
+
+        }
+
+
+        const d1 =
+
+          l1.rho
+
+          -
+
+          (
+            centerX *
+            l1.a
+
+            +
+
+            centerY *
+            l1.b
+          );
+
+
+        const d2 =
+
+          l2.rho
+
+          -
+
+          (
+            centerX *
+            l2.a
+
+            +
+
+            centerY *
+            l2.b
+          );
+
+
+        const separation =
+          Math.abs(
+            d1 -
+            d2
+          );
+
+
+        if(
+          separation <
+          Math.min(
+            width,
+            height
+          )
+          *
+          .14
+        ){
+
+          continue;
+
+        }
+
+
+        let mx =
+          l1.a +
+          l2.a;
+
+
+        let my =
+          l1.b +
+          l2.b;
+
+
+        const length =
+          Math.hypot(
+            mx,
+            my
+          )
+          ||
+          1;
+
+
+        mx /=
+          length;
+
+
+        my /=
+          length;
+
+
+        let middleTheta =
+          Math.atan2(
+            my,
+            mx
+          );
+
+
+        if(
+          middleTheta <
+          0
+        ){
+
+          middleTheta +=
+            Math.PI;
+
+        }
+
+
+        pairs.push({
+
+          l1,
+          l2,
+
+          midTheta:
+            middleTheta,
+
+          score:
+
+            (
+              l1.score +
+              l2.score
+            )
+
+            *
+
+            (
+              1
+              +
+              Math.min(
+
+                1.5,
+
+                separation /
+                Math.min(
+                  width,
+                  height
+                )
+
+              )
+            )
+
+        });
+
+      }
+
+    }
+
+
+    pairs.sort(
+      (a,b) =>
+        b.score -
+        a.score
+    );
+
+
+    const bestPairs =
+      pairs.slice(
+        0,
+        48
+      );
+
+
+    if(
+      bestPairs.length <
+      2
+    ){
+
+      throw new Error(
+        "NO_PAIRS"
+      );
+
+    }
+
+
+    /*
+    將兩組方向不同的對邊
+    組成四邊形
+    */
+
+    let best =
+      null;
+
+
+    let bestScore =
+      -Infinity;
+
+
+    const imageArea =
+      width *
+      height;
+
+
+    const strongestLine =
+      lines[0].score ||
+      1;
+
+
+    for(
+      let i = 0;
+      i < bestPairs.length;
+      i++
+    ){
+
+      for(
+        let j = i + 1;
+        j < bestPairs.length;
+        j++
+      ){
+
+        const familyA =
+          bestPairs[i];
+
+
+        const familyB =
+          bestPairs[j];
+
+
+        const familyAngle =
+          angleDiffPi(
+
+            familyA.midTheta,
+
+            familyB.midTheta
+
+          );
+
+
+        /*
+        兩組邊應該大概互相垂直，
+        但保留透視空間
+        */
+
+        if(
+          familyAngle <
+          52 *
+          Math.PI /
+          180
+
+          ||
+
+          familyAngle >
+          128 *
+          Math.PI /
+          180
+        ){
+
+          continue;
+
+        }
+
+
+        const intersections = [
+
+          lineIntersection(
+            familyA.l1,
+            familyB.l1
+          ),
+
+          lineIntersection(
+            familyA.l2,
+            familyB.l1
+          ),
+
+          lineIntersection(
+            familyA.l2,
+            familyB.l2
+          ),
+
+          lineIntersection(
+            familyA.l1,
+            familyB.l2
+          )
+
+        ];
+
+
+        if(
+          intersections.some(
+            p =>
+              !p
+          )
+        ){
+
+          continue;
+
+        }
+
+
+        let quad =
+          orderCorners(
+            intersections
+          );
+
+
+        /*
+        四個角必須在圖片裡
+        */
+
+        if(
+          quad.some(
+            p =>
+
+              p.x <
+              0
+
+              ||
+
+              p.y <
+              0
+
+              ||
+
+              p.x >
+              width -
+              1
+
+              ||
+
+              p.y >
+              height -
+              1
+          )
+        ){
+
+          continue;
+
+        }
+
+
+        const area =
+          polygonArea(
+            quad
+          );
+
+
+        const areaRatio =
+          area /
+          imageArea;
+
+
+        if(
+          areaRatio <
+          .035
+
+          ||
+
+          areaRatio >
+          .97
+        ){
+
+          continue;
+
+        }
+
+
+        const sides = [
+
+          pointDistance(
+            quad[0],
+            quad[1]
+          ),
+
+          pointDistance(
+            quad[1],
+            quad[2]
+          ),
+
+          pointDistance(
+            quad[2],
+            quad[3]
+          ),
+
+          pointDistance(
+            quad[3],
+            quad[0]
+          )
+
+        ];
+
+
+        if(
+          Math.min(
+            ...sides
+          )
+          <
+          Math.min(
+            width,
+            height
+          )
+          *
+          .13
+        ){
+
+          continue;
+
+        }
+
+
+        const angleScore =
+          internalAngleScore(
+            quad
+          );
+
+
+        if(
+          angleScore <=
+          0
+        ){
+
+          continue;
+
+        }
+
+
+        /*
+        最重要：
+        四條線是不是真的有貼到圖片上的邊
+        */
+
+        const support =
+          quadSupport(
+
+            quad,
+
+            magnitude,
+
+            width,
+            height,
+
+            threshold
+
+          );
+
+
+        if(
+          support <
+          .25
+        ){
+
+          continue;
+
+        }
+
+
+        const quadCenter = {
+
+          x:
+            (
+              quad[0].x +
+              quad[1].x +
+              quad[2].x +
+              quad[3].x
+            )
+            /
+            4,
+
+
+          y:
+            (
+              quad[0].y +
+              quad[1].y +
+              quad[2].y +
+              quad[3].y
+            )
+            /
+            4
+
+        };
+
+
+        const centerDistance =
+          Math.hypot(
+
+            (
+              quadCenter.x -
+              centerX
+            )
+            /
+            width,
+
+            (
+              quadCenter.y -
+              centerY
+            )
+            /
+            height
+
+          );
+
+
+        const centerScore =
+
+          1 /
+          (
+            1 +
+            centerDistance *
+            2.2
+          );
+
+
+        const lineStrength =
+
+          (
+            familyA.l1.score
+
+            +
+
+            familyA.l2.score
+
+            +
+
+            familyB.l1.score
+
+            +
+
+            familyB.l2.score
+          )
+
+          /
+
+          (
+            4 *
+            strongestLine
+          );
+
+
+        /*
+        邊緣吻合程度權重最高
+        */
+
+        const score =
+
+          Math.pow(
+            support,
+            2.2
+          )
+
+          *
+
+          Math.sqrt(
+            areaRatio
+          )
+
+          *
+
+          (
+            .55 +
+            .45 *
+            angleScore
+          )
+
+          *
+
+          (
+            .65 +
+            .35 *
+            centerScore
+          )
+
+          *
+
+          (
+            .65 +
+            .35 *
+            lineStrength
+          );
+
+
+        if(
+          score >
+          bestScore
+        ){
+
+          bestScore =
+            score;
+
+
+          best = {
+
+            q:
+              quad,
+
+            support,
+
+            areaRatio
+
+          };
+
+        }
+
+      }
+
+    }
+
+
+    /*
+    寧願不抓，也不要亂抓
+    */
+
+    if(
+      !best
+
+      ||
+
+      best.support <
+      .34
+    ){
+
+      throw new Error(
+        "LOW_CONFIDENCE"
+      );
+
+    }
+
+
+    /*
+    再用附近實際邊緣
+    精修四條線
+    */
+
+    let refined =
+      refineQuad(
+
+        best.q,
+
+        edges,
+
+        width,
+        height
+
+      );
+
+
+    const refinedSupport =
+      quadSupport(
+
+        refined,
+
+        magnitude,
+
+        width,
+        height,
+
+        threshold
+
+      );
+
+
+    /*
+    精修反而更爛，
+    就退回原候選
+    */
+
+    if(
+      refinedSupport +
+      .03
+      <
+      best.support
+    ){
+
+      refined =
+        best.q;
+
+    }
+
+
+    /*
+    映射回原始圖片座標
+    */
+
+    const scaleX =
+
+      (
+        img.naturalWidth -
+        1
+      )
+
+      /
+
+      (
+        width -
+        1
+      );
+
+
+    const scaleY =
+
+      (
+        img.naturalHeight -
+        1
+      )
+
+      /
+
+      (
+        height -
+        1
+      );
+
+
+    const mapped =
+      refined.map(
+        p => ({
+
+          x:
+            clamp(
+
+              p.x *
+              scaleX,
+
+              0,
+
+              img.naturalWidth -
+              1
+
+            ),
+
+
+          y:
+            clamp(
+
+              p.y *
+              scaleY,
+
+              0,
+
+              img.naturalHeight -
+              1
+
+            )
+
+        })
+      );
+
+
+    if(
+      !validQuad(
+        mapped
+      )
+    ){
+
+      throw new Error(
+        "BAD_QUAD"
+      );
+
+    }
+
+
+    points =
+      mapped;
+
+
+    /*
+    偵測後回到全圖
+    */
+
+    zoom =
+      1;
+
+
+    panX =
+      0;
+
+
+    panY =
+      0;
+
+
+    updateZoomText();
+
+
+    draw();
+
+
+    const percent =
+      Math.round(
+
+        Math.min(
+
+          99,
+
+          Math.max(
+            0,
+            best.support *
+            100
+          )
+
+        )
+
+      );
+
+
+    showToast(
+      "偵測完成（邊界吻合 " +
+      percent +
+      "%），可以再微調"
+    );
+
+  }
+
+  catch(error){
+
+    console.error(
+      error
+    );
+
+
+    /*
+    最重要：
+    偵測失敗時不碰原本四個點
+    */
+
+    showToast(
+      "這張圖沒有足夠可靠的四邊形，我先不亂移四個點"
+    );
+
+  }
+
+  finally{
+
+    hideLoading();
+
+
+    autoDetectBtn.disabled =
+      false;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   Quad validation
+========================================================= */
+
+function cross(
+  a,
+  b,
+  c
+){
+
+  return (
+
+    (
+      b.x -
+      a.x
+    )
+
+    *
+
+    (
+      c.y -
+      a.y
+    )
+
+    -
+
+    (
+      b.y -
+      a.y
+    )
+
+    *
+
+    (
+      c.x -
+      a.x
+    )
+
+  );
+
+}
+
+
+function validQuad(p){
+
+  const c1 =
+    cross(
+      p[0],
+      p[1],
+      p[2]
+    );
+
+
+  const c2 =
+    cross(
+      p[1],
+      p[2],
+      p[3]
+    );
+
+
+  const c3 =
+    cross(
+      p[2],
+      p[3],
+      p[0]
+    );
+
+
+  const c4 =
+    cross(
+      p[3],
+      p[0],
+      p[1]
+    );
+
+
+  return (
+
+    (
+      c1 > 0 &&
+      c2 > 0 &&
+      c3 > 0 &&
+      c4 > 0
+    )
+
+    ||
+
+    (
+      c1 < 0 &&
+      c2 < 0 &&
+      c3 < 0 &&
+      c4 < 0
+    )
+
+  );
+
+}
+
+
+
+/* =========================================================
+   Homography
+========================================================= */
+
+function solveLinearSystem(
+  matrix
+){
+
+  const n =
+    8;
+
+
+  for(
+    let column = 0;
+    column < n;
+    column++
+  ){
+
+    let pivot =
+      column;
+
+
+    for(
+      let row =
+        column +
+        1;
+
+      row <
+        n;
+
+      row++
+    ){
+
+      if(
+        Math.abs(
+          matrix[row][column]
+        )
+        >
+        Math.abs(
+          matrix[pivot][column]
+        )
+      ){
+
+        pivot =
+          row;
+
+      }
+
+    }
+
+
+    [
+      matrix[column],
+      matrix[pivot]
+    ]
+    =
+    [
+      matrix[pivot],
+      matrix[column]
+    ];
+
+
+    const divisor =
+      matrix[column][column];
+
+
+    if(
+      Math.abs(
+        divisor
+      )
+      <
+      1e-12
+    ){
+
+      throw new Error(
+        "透視矩陣無法計算"
+      );
+
+    }
+
+
+    for(
+      let j =
+        column;
+
+      j <=
+        n;
+
+      j++
+    ){
+
+      matrix[column][j]
+        /=
+        divisor;
+
+    }
+
+
+    for(
+      let row = 0;
+      row < n;
+      row++
+    ){
+
+      if(
+        row ===
+        column
+      ){
+
+        continue;
+
+      }
+
+
+      const factor =
+        matrix[row][column];
+
+
+      for(
+        let j =
+          column;
+
+        j <=
+          n;
+
+        j++
+      ){
+
+        matrix[row][j]
+          -=
+
+          factor *
+          matrix[column][j];
+
+      }
+
+    }
+
+  }
+
+
+  return matrix.map(
+    row =>
+      row[n]
+  );
+
+}
+
+
+function getHomography(
+  destination,
+  source
+){
+
+  const matrix =
+    [];
+
+
+  for(
+    let i = 0;
+    i < 4;
+    i++
+  ){
+
+    const u =
+      destination[i].x;
+
+
+    const v =
+      destination[i].y;
+
+
+    const x =
+      source[i].x;
+
+
+    const y =
+      source[i].y;
+
+
+    matrix.push([
+
+      u,
+      v,
+      1,
+
+      0,
+      0,
+      0,
+
+      -x *
+      u,
+
+      -x *
+      v,
+
+      x
+
+    ]);
+
+
+    matrix.push([
+
+      0,
+      0,
+      0,
+
+      u,
+      v,
+      1,
+
+      -y *
+      u,
+
+      -y *
+      v,
+
+      y
+
+    ]);
+
+  }
+
+
+  return solveLinearSystem(
+    matrix
+  );
+
+}
+
+
+
+/* =========================================================
+   Bilinear
+========================================================= */
+
+function bilinearSample(
+
+  data,
+
+  width,
+  height,
+
+  x,
+  y,
+
+  output,
+
+  index
+
+){
+
+  x =
+    clamp(
+
+      x,
+
+      0,
+
+      width -
+      1
+
+    );
+
+
+  y =
+    clamp(
+
+      y,
+
+      0,
+
+      height -
+      1
+
+    );
+
+
+  const x0 =
+    Math.floor(
+      x
+    );
+
+
+  const y0 =
+    Math.floor(
+      y
+    );
+
+
+  const x1 =
+    Math.min(
+
+      x0 +
+      1,
+
+      width -
+      1
+
+    );
+
+
+  const y1 =
+    Math.min(
+
+      y0 +
+      1,
+
+      height -
+      1
+
+    );
+
+
+  const fx =
+    x -
+    x0;
+
+
+  const fy =
+    y -
+    y0;
+
+
+  const i00 =
+    (
+      y0 *
+      width +
+      x0
+    )
+    *
+    4;
+
+
+  const i10 =
+    (
+      y0 *
+      width +
+      x1
+    )
+    *
+    4;
+
+
+  const i01 =
+    (
+      y1 *
+      width +
+      x0
+    )
+    *
+    4;
+
+
+  const i11 =
+    (
+      y1 *
+      width +
+      x1
+    )
+    *
+    4;
+
+
+  for(
+    let channel = 0;
+    channel < 4;
+    channel++
+  ){
+
+    const top =
+
+      data[
+        i00 +
+        channel
+      ]
+
+      *
+      (
+        1 -
+        fx
+      )
+
+      +
+
+      data[
+        i10 +
+        channel
+      ]
+
+      *
+      fx;
+
+
+    const bottom =
+
+      data[
+        i01 +
+        channel
+      ]
+
+      *
+      (
+        1 -
+        fx
+      )
+
+      +
+
+      data[
+        i11 +
+        channel
+      ]
+
+      *
+      fx;
+
+
+    output[
+      index +
+      channel
+    ] =
+
+      Math.round(
+
+        top *
+        (
+          1 -
+          fy
+        )
+
+        +
+
+        bottom *
+        fy
+
+      );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   透視校正
+========================================================= */
+
+async function rectify(){
+
+  if(
+    !img
+
+    ||
+
+    points.length !==
+    4
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    !validQuad(
+      points
+    )
+  ){
+
+    alert(
+      "四個角有交叉，請重新調整。"
+    );
+
+
+    return;
+
+  }
+
+
+  showLoading(
+    "正在拉正圖片…"
+  );
+
+
+  await allowPaint();
+
+
+  try{
+
+    const source =
+      points.map(
+        p => ({
+
+          ...p
+
+        })
+      );
+
+
+    const top =
+      pointDistance(
+
+        source[0],
+        source[1]
+
+      );
+
+
+    const bottom =
+      pointDistance(
+
+        source[3],
+        source[2]
+
+      );
+
+
+    const left =
+      pointDistance(
+
+        source[0],
+        source[3]
+
+      );
+
+
+    const right =
+      pointDistance(
+
+        source[1],
+        source[2]
+
+      );
+
+
+    let outputWidth =
+      Math.max(
+
+        2,
+
+        Math.round(
+
+          (
+            top +
+            bottom
+          )
+          /
+          2
+
+        )
+
+      );
+
+
+    let outputHeight =
+      Math.max(
+
+        2,
+
+        Math.round(
+
+          (
+            left +
+            right
+          )
+          /
+          2
+
+        )
+
+      );
+
+
+    const MAX_SIDE =
+      4096;
+
+
+    const reduce =
+      Math.min(
+
+        1,
+
+        MAX_SIDE /
+        Math.max(
+
+          outputWidth,
+          outputHeight
+
+        )
+
+      );
+
+
+    outputWidth =
+      Math.max(
+
+        2,
+
+        Math.round(
+          outputWidth *
+          reduce
+        )
+
+      );
+
+
+    outputHeight =
+      Math.max(
+
+        2,
+
+        Math.round(
+          outputHeight *
+          reduce
+        )
+
+      );
+
+
+    const sourceCanvas =
+      document.createElement(
+        "canvas"
+      );
+
+
+    sourceCanvas.width =
+      img.naturalWidth;
+
+
+    sourceCanvas.height =
+      img.naturalHeight;
+
+
+    const sourceCtx =
+      sourceCanvas.getContext(
+
+        "2d",
+
+        {
+          willReadFrequently:
+            true
+        }
+
+      );
+
+
+    sourceCtx.drawImage(
+      img,
+      0,
+      0
+    );
+
+
+    const sourceImage =
+      sourceCtx.getImageData(
+
+        0,
+        0,
+
+        sourceCanvas.width,
+        sourceCanvas.height
+
+      );
+
+
+    resultCanvas.width =
+      outputWidth;
+
+
+    resultCanvas.height =
+      outputHeight;
+
+
+    const output =
+      resultCtx.createImageData(
+
+        outputWidth,
+        outputHeight
+
+      );
+
+
+    const destination = [
+
+      {
+        x:0,
+        y:0
+      },
+
+
+      {
+        x:
+          outputWidth -
+          1,
+
+        y:0
+      },
+
+
+      {
+        x:
+          outputWidth -
+          1,
+
+        y:
+          outputHeight -
+          1
+      },
+
+
+      {
+        x:0,
+
+        y:
+          outputHeight -
+          1
+      }
+
+    ];
+
+
+    const H =
+      getHomography(
+
+        destination,
+
+        source
+
+      );
+
+
+    const [
+
+      h11,
+      h12,
+      h13,
+
+      h21,
+      h22,
+      h23,
+
+      h31,
+      h32
+
+    ] = H;
+
+
+    for(
+      let y = 0;
+      y < outputHeight;
+      y++
+    ){
+
+      for(
+        let x = 0;
+        x < outputWidth;
+        x++
+      ){
+
+        const denominator =
+
+          h31 *
+          x
+
+          +
+
+          h32 *
+          y
+
+          +
+
+          1;
+
+
+        const sourceX =
+
+          (
+            h11 *
+            x
+
+            +
+
+            h12 *
+            y
+
+            +
+
+            h13
+          )
+
+          /
+          denominator;
+
+
+        const sourceY =
+
+          (
+            h21 *
+            x
+
+            +
+
+            h22 *
+            y
+
+            +
+
+            h23
+          )
+
+          /
+          denominator;
+
+
+        bilinearSample(
+
+          sourceImage.data,
+
+          sourceCanvas.width,
+          sourceCanvas.height,
+
+          sourceX,
+          sourceY,
+
+          output.data,
+
+          (
+            y *
+            outputWidth
+
+            +
+
+            x
+          )
+          *
+          4
+
+        );
+
+      }
+
+    }
+
+
+    resultCtx.putImageData(
+
+      output,
+
+      0,
+      0
+
+    );
+
+
+    resultPage.style.display =
+      "flex";
+
+  }
+
+  catch(error){
+
+    console.error(
+      error
+    );
+
+
+    alert(
+      "校正失敗，請重新調整四個角。"
+    );
+
+  }
+
+  finally{
+
+    hideLoading();
+
+  }
+
+}
+
+
+document.getElementById(
+  "confirmBtn"
+).onclick =
+  rectify;
+
+
+
+/* =========================================================
+   結果 / 下載
+========================================================= */
+
+function closeResult(){
+
+  resultPage.style.display =
+    "none";
+
+}
+
+
+document.getElementById(
+  "backBtn"
+).onclick =
+  closeResult;
+
+
+document.getElementById(
+  "backBtn2"
+).onclick =
+  closeResult;
+
+
+document.getElementById(
+  "downloadBtn"
+).onclick =
+  () => {
+
+    resultCanvas.toBlob(
+
+      blob => {
+
+        if(!blob){
+          return;
+        }
+
+
+        const url =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const a =
+          document.createElement(
+            "a"
+          );
+
+
+        a.href =
+          url;
+
+
+        a.download =
+          "perspective-corrected.png";
+
+
+        document.body.appendChild(
+          a
+        );
+
+
+        a.click();
+
+
+        a.remove();
+
+
+        setTimeout(
+          () => {
+
+            URL.revokeObjectURL(
+              url
+            );
+
+          },
+          1500
+        );
+
+      },
+
+      "image/png"
+
+    );
+
+  };
+
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+
+resizeCanvas();
+
+</script>
+
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="裁切、旋轉、拉伸、模糊與壓縮。 免費使用，圖片只在本機處理。">
+    <meta name="description" content="裁切、旋轉、拉伸、模糊、壓縮、透視與顏色處理。圖片只在本機處理。">
     <meta name="theme-color" content="#f7f8f4">
     <title>圖片編輯整合 — 萬能工具箱</title>
     <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
@@ -38,7 +38,7 @@
                     </div>
                 </section>
             <aside class="photo-settings panel" aria-label="編輯設定">
-                <div class="edit-tabs" role="group" aria-label="編輯功能"><button type="button" data-tab="crop" aria-label="裁切與旋轉" aria-pressed="true">裁切</button><button type="button" data-tab="resize" aria-pressed="false">尺寸</button><button type="button" data-tab="blur" aria-pressed="false">模糊</button><button type="button" data-tab="compress" aria-pressed="false">壓縮</button></div>
+                <div class="edit-tabs studio-tabs" role="group" aria-label="編輯功能"><button type="button" data-tab="crop" aria-label="裁切與旋轉" aria-pressed="true">裁切</button><button type="button" data-tab="resize" aria-pressed="false">尺寸</button><button type="button" data-tab="blur" aria-pressed="false">模糊</button><button type="button" data-tab="compress" aria-pressed="false">壓縮</button><button type="button" id="advanced-tab" aria-pressed="false">進階</button></div>
 
                     <fieldset id="edit-controls" disabled>
                         <legend class="sr-only">圖片編輯設定</legend>
@@ -94,11 +94,23 @@
                     <progress id="batch-progress" value="0" max="1" hidden aria-label="批次處理進度"></progress><p id="batch-status" class="queue-note" role="status"></p>
                 </section>
         </div>
+        <section id="advanced-tools" class="advanced-tools panel" hidden aria-labelledby="advanced-title">
+            <div class="advanced-heading"><div><h2 id="advanced-title">進階圖片工具</h2><p id="advanced-description">拉動四角，修正斜拍變形。</p></div><a id="advanced-open" href="../perspective-correction/index.html" target="_blank" rel="noopener">另開頁面 ↗</a></div>
+            <div class="advanced-switcher" role="group" aria-label="選擇進階工具">
+                <button type="button" class="selected" data-advanced-url="../perspective-correction/index.html?embed=1" data-open-url="../perspective-correction/index.html" data-description="拉動四角，修正斜拍變形。">透視校正</button>
+                <button type="button" data-advanced-url="../quadrilateral-blur/index.html?embed=1" data-open-url="../quadrilateral-blur/index.html" data-description="用四個角點模糊任意區域。">四點模糊</button>
+                <button type="button" data-advanced-url="../pixel-color-replacer/index.html?embed=1" data-open-url="../pixel-color-replacer/index.html" data-description="選取顏色，替換相同或相近像素。">顏色替換</button>
+                <button type="button" data-advanced-url="../chroma-key/index.html?embed=1" data-open-url="../chroma-key/index.html" data-description="選取背景色並輸出透明 PNG。">色度摳圖</button>
+                <button type="button" data-advanced-url="../image-solid-color/index.html?embed=1" data-open-url="../image-solid-color/index.html" data-description="把所有可見像素換成同一顏色。">統一顏色</button>
+            </div>
+            <iframe id="advanced-frame" title="進階圖片工具" loading="lazy"></iframe>
+        </section>
         <p id="photo-status" class="photo-status" role="status" aria-live="polite"></p>
         <details class="photo-limits"><summary>格式與尺寸限制</summary><p>來源最多 5,000 萬像素；輸出每邊最多 8,192 px、總共 2,400 萬像素。超出輸出上限會等比例縮小。GIF 匯出為靜態圖片。ZIP 最多 200 MB。</p></details>
         <noscript><p>請啟用 JavaScript 以使用圖片工具。</p></noscript>
     </main>
     <footer class="site-footer"><a class="footer-brand" href="../../index.html">萬能工具箱</a><a href="../../index.html#all-tools">所有工具 →</a></footer>
     <script type="module" src="../../assets/image-tools/editor.js"></script>
+    <script type="module" src="advanced.js"></script>
 </body>
 </html>

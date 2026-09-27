@@ -7,3 +7,5 @@
 #photo-stage.preview-black { background: #1e211f; }
 .solid-tool .result-summary { justify-content: flex-start; }
 @media (max-width: 850px) { .solid-tool .photo-layout { grid-template-areas: "preview" "settings"; } }
+body.embed .site-header, body.embed .tool-intro, body.embed .photo-topline, body.embed .site-footer { display: none; }
+body.embed .tool-main { width: 100%; margin: 0; padding: 16px; }

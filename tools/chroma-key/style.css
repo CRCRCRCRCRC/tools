@@ -11,3 +11,5 @@
 .chroma-tool .result-summary { justify-content: flex-start; }
 #result-note { font-size: 14px; }
 @media (max-width: 850px) { .chroma-tool .photo-layout { grid-template-areas: "preview" "settings"; } }
+body.embed .site-header, body.embed .tool-intro, body.embed .photo-topline, body.embed .site-footer { display: none; }
+body.embed .tool-main { width: 100%; margin: 0; padding: 16px; }

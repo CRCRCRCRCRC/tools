@@ -1,0 +1,4030 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="
+        width=device-width,
+        initial-scale=1,
+        maximum-scale=1,
+        user-scalable=no,
+        viewport-fit=cover
+    "
+>
+
+<title>四點區域模糊 — 萬能工具箱</title>
+
+<meta name="description" content="用四個控制點框選任意區域並套用模糊，可建立多個區域後下載圖片。">
+<meta name="theme-color" content="#f7f8f4">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="stylesheet" href="../../site.css">
+
+<style>
+:root {
+    --bg: #101012;
+    --panel: rgba(27,27,30,.96);
+    --panel2: #2b2b30;
+    --border: rgba(255,255,255,.12);
+    --text: #f7f7f8;
+    --sub: #aaaab0;
+    --blue: #0a84ff;
+    --red: #ff453a;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+
+    background: var(--bg);
+    color: var(--text);
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Text",
+        "PingFang TC",
+        "Noto Sans TC",
+        Arial,
+        sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* =========================
+   Toolbar
+========================= */
+
+.toolbar {
+    flex: 0 0 auto;
+    z-index: 30;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding:
+        max(8px, env(safe-area-inset-top))
+        9px
+        8px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scrollbar-width: none;
+
+    background: var(--panel);
+
+    border-bottom:
+        1px solid var(--border);
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
+}
+
+.toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+button,
+.uploadButton {
+    flex: 0 0 auto;
+
+    height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 14px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: var(--panel2);
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 650;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+button:active,
+.uploadButton:active {
+    transform: scale(.96);
+}
+
+button:disabled {
+    opacity: .3;
+}
+
+.uploadButton {
+    background: white;
+    color: #111;
+}
+
+#addButton {
+    background: var(--blue);
+}
+
+#deleteButton {
+    color: #ff716a;
+
+    background:
+        rgba(255,69,58,.14);
+}
+
+#downloadButton {
+    background: white;
+    color: #111;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.sep {
+    flex: 0 0 auto;
+
+    width: 1px;
+    height: 27px;
+
+    margin: 0 2px;
+
+    background: var(--border);
+}
+
+
+/* =========================
+   Blur slider
+========================= */
+
+.blurControl {
+    flex: 0 0 auto;
+
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 0 11px;
+
+    border-radius: 10px;
+
+    background: var(--panel2);
+}
+
+.blurControl span {
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+#blurSlider {
+    width: 160px;
+    accent-color: var(--blue);
+}
+
+#blurNumber {
+    min-width: 27px;
+
+    text-align: right;
+
+    font-weight: 700;
+
+    font-variant-numeric:
+        tabular-nums;
+}
+
+
+/* =========================
+   Workspace
+========================= */
+
+.workspace {
+    position: relative;
+
+    flex: 1 1 0;
+
+    min-height: 0;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            #2a2a2f 0%,
+            #1a1a1d 57%,
+            #111113 100%
+        );
+}
+
+#canvas {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    touch-action: none;
+}
+
+
+/* =========================
+   Empty
+========================= */
+
+.empty {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    pointer-events: none;
+
+    color: #77777d;
+}
+
+.emptyIcon {
+    width: 65px;
+    height: 65px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 12px;
+
+    border:
+        2px dashed #56565d;
+
+    border-radius: 17px;
+
+    font-size: 28px;
+}
+
+.emptyTitle {
+    color: #bdbdc2;
+
+    font-size: 16px;
+    font-weight: 650;
+}
+
+.emptySub {
+    margin-top: 6px;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   Zoom controls
+========================= */
+
+.zoomBox {
+    position: absolute;
+
+    z-index: 20;
+
+    left:
+        max(
+            12px,
+            env(safe-area-inset-left)
+        );
+
+    bottom:
+        max(
+            12px,
+            env(safe-area-inset-bottom)
+        );
+
+    display: flex;
+    align-items: center;
+
+    gap: 3px;
+
+    padding: 4px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+
+    background:
+        rgba(28,28,31,.9);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+}
+
+.zoomBox button {
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    border-radius: 8px;
+
+    font-size: 20px;
+}
+
+.zoomBox .fit {
+    width: auto;
+
+    padding: 0 11px;
+
+    font-size: 12px;
+}
+
+#zoomText {
+    min-width: 54px;
+
+    padding: 0 4px;
+
+    text-align: center;
+
+    color: #d0d0d4;
+
+    font-size: 12px;
+
+    font-variant-numeric:
+        tabular-nums;
+}
+
+
+/* =========================
+   Calculating indicator
+========================= */
+
+.processing {
+    position: absolute;
+
+    z-index: 50;
+
+    top: 14px;
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    padding:
+        7px 12px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(0,0,0,.72);
+
+    color: white;
+
+    font-size: 12px;
+
+    pointer-events: none;
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+/* =========================
+   Responsive
+========================= */
+
+@media(max-width: 720px) {
+
+    .toolbar {
+        gap: 5px;
+
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+
+    button,
+    .uploadButton {
+        height: 38px;
+
+        padding: 0 11px;
+
+        font-size: 13px;
+    }
+
+    .blurControl {
+        height: 38px;
+    }
+
+    #blurSlider {
+        width: 115px;
+    }
+}
+
+</style>
+
+<style>
+:root { --bg: #f7f8f4; --panel: #fff; --panel2: #f3f6ef; --border: #e0e5db; --text: #263b30; --sub: #626e60; --blue: #365e47; --red: #a34232; }
+html, body { width: auto; height: auto; min-height: 100%; overflow: auto; background: var(--bg); color: var(--text); font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif; }
+body { display: block; }
+.advanced-shell { width: min(1120px, calc(100% - 64px)); height: max(620px, calc(100dvh - 250px)); max-height: 820px; min-height: 620px; margin: 0 auto 48px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
+.toolbar { padding: 11px 14px; background: #fff; border-bottom: 1px solid var(--border); backdrop-filter: none; }
+.toolbar button, .toolbar .uploadButton { height: 44px; min-height: 44px; border: 1px solid var(--border); border-radius: 9px; background: #fff; color: var(--green); font-size: 16px; font-weight: 650; }
+.toolbar button:hover:not(:disabled), .toolbar .uploadButton:hover { background: var(--soft-green); }
+#addButton { background: var(--green); color: #fff; border-color: var(--green); }
+#downloadButton { background: var(--green); color: #fff; border-color: var(--green); }
+.blurControl { height: 44px; background: #f8faf5; border: 1px solid var(--border); color: var(--ink); }
+.sep { background: var(--border); }
+.workspace { flex: 1 1 auto; min-height: 0; background: repeating-conic-gradient(#edf0e8 0 25%, #fcfdfb 0 50%) 0 / 18px 18px; }
+.emptyTitle { color: var(--ink); font-size: 22px; }
+.emptySub { color: var(--muted); font-size: 16px; }
+.emptyIcon, .zoomBox button { background: var(--soft-green); color: var(--green); }
+.zoomBox { background: #fffffff2; color: var(--ink); border: 1px solid var(--border); box-shadow: 0 4px 14px #263b3015; }
+.processing { background: #fffffff2; color: var(--green); border: 1px solid var(--border); }
+body.embed .site-header, body.embed .tool-intro, body.embed .site-footer { display: none; }
+body.embed .advanced-shell { width: 100%; height: 100dvh; max-height: none; min-height: 620px; margin: 0; border: 0; border-radius: 0; }
+@media (max-width: 600px) { .advanced-shell { width: calc(100% - 36px); height: max(590px, calc(100dvh - 210px)); min-height: 590px; border-radius: 14px; } .toolbar { padding: 8px; } .toolbar button, .toolbar .uploadButton { height: 40px; min-height: 40px; font-size: 14px; } }
+</style>
+</head>
+
+<body class="tool-page">
+
+<script>if(new URLSearchParams(location.search).has('embed'))document.body.classList.add('embed');</script>
+
+<a class="skip-link" href="#main-content">跳至主要內容</a>
+<header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+    <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱</a>
+    <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+</nav></header>
+<div class="tool-intro"><div class="tool-title-row"><span class="tool-icon lavender"><svg aria-hidden="true"><use href="../../assets/icons.svg#image"></use></svg></span><h1>四點區域模糊</h1></div></div>
+<main id="main-content" class="advanced-shell">
+
+
+<div class="toolbar">
+
+    <label class="uploadButton">
+
+        上傳圖片
+
+        <input
+            id="fileInput"
+            type="file"
+            accept="image/*"
+        >
+
+    </label>
+
+
+    <div class="sep"></div>
+
+
+    <button
+        id="addButton"
+        disabled
+    >
+        ＋ 新增區域
+    </button>
+
+
+    <button
+        id="deleteButton"
+        disabled
+    >
+        刪除
+    </button>
+
+
+    <div class="sep"></div>
+
+
+    <div class="blurControl">
+
+        <span>
+            模糊
+        </span>
+
+        <input
+            id="blurSlider"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="25"
+        >
+
+        <span id="blurNumber">
+            25
+        </span>
+
+    </div>
+
+
+    <div class="sep"></div>
+
+
+    <button
+        id="fitTopButton"
+        disabled
+    >
+        適應畫面
+    </button>
+
+
+    <button
+        id="downloadButton"
+        disabled
+    >
+        下載圖片
+    </button>
+
+</div>
+
+
+
+<div
+    id="workspace"
+    class="workspace"
+>
+
+    <canvas id="canvas"></canvas>
+
+
+    <div
+        id="empty"
+        class="empty"
+    >
+
+        <div class="emptyIcon">
+            ＋
+        </div>
+
+        <div class="emptyTitle">
+            上傳圖片
+        </div>
+
+        <div class="emptySub">
+            新增四點區域後即可模糊
+        </div>
+
+    </div>
+
+
+    <div
+        id="processing"
+        class="processing"
+        hidden
+    >
+        正在更新模糊效果…
+    </div>
+
+
+    <div
+        id="zoomBox"
+        class="zoomBox"
+        hidden
+    >
+
+        <button id="zoomOut">
+            −
+        </button>
+
+        <div id="zoomText">
+            100%
+        </div>
+
+        <button id="zoomIn">
+            ＋
+        </button>
+
+        <button
+            id="fitButton"
+            class="fit"
+        >
+            適應
+        </button>
+
+    </div>
+
+</div>
+
+
+</main>
+
+<footer class="site-footer"><a class="footer-brand" href="../../index.html">萬能工具箱</a><a href="../../index.html#all-tools">所有工具 →</a></footer>
+
+
+
+<script>
+
+/* ============================================================
+   DOM
+============================================================ */
+
+const workspace =
+    document.getElementById(
+        "workspace"
+    );
+
+const canvas =
+    document.getElementById(
+        "canvas"
+    );
+
+const ctx =
+    canvas.getContext(
+        "2d"
+    );
+
+
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
+
+const empty =
+    document.getElementById(
+        "empty"
+    );
+
+
+const addButton =
+    document.getElementById(
+        "addButton"
+    );
+
+const deleteButton =
+    document.getElementById(
+        "deleteButton"
+    );
+
+const downloadButton =
+    document.getElementById(
+        "downloadButton"
+    );
+
+
+const fitTopButton =
+    document.getElementById(
+        "fitTopButton"
+    );
+
+const fitButton =
+    document.getElementById(
+        "fitButton"
+    );
+
+
+const zoomBox =
+    document.getElementById(
+        "zoomBox"
+    );
+
+const zoomOut =
+    document.getElementById(
+        "zoomOut"
+    );
+
+const zoomIn =
+    document.getElementById(
+        "zoomIn"
+    );
+
+const zoomText =
+    document.getElementById(
+        "zoomText"
+    );
+
+
+const blurSlider =
+    document.getElementById(
+        "blurSlider"
+    );
+
+const blurNumber =
+    document.getElementById(
+        "blurNumber"
+    );
+
+
+const processing =
+    document.getElementById(
+        "processing"
+    );
+
+
+/* ============================================================
+   Image
+============================================================ */
+
+let image =
+    new Image();
+
+let loaded =
+    false;
+
+let filename =
+    "image";
+
+
+/* ============================================================
+   Regions
+============================================================ */
+
+let regions =
+    [];
+
+let selectedRegion =
+    -1;
+
+
+/* ============================================================
+   Blur
+============================================================ */
+
+let blurAmount =
+    25;
+
+
+const blurCanvas =
+    document.createElement(
+        "canvas"
+    );
+
+const blurCtx =
+    blurCanvas.getContext(
+        "2d",
+        {
+            willReadFrequently: true
+        }
+    );
+
+
+let blurUpdateTimer =
+    null;
+
+let blurJobID =
+    0;
+
+
+/* ============================================================
+   View
+============================================================ */
+
+const view = {
+
+    scale: 1,
+
+    x: 0,
+
+    y: 0,
+
+    fitScale: 1
+
+};
+
+
+/* ============================================================
+   Pointer
+============================================================ */
+
+const pointers =
+    new Map();
+
+
+let dragState =
+    null;
+
+
+let pinchState =
+    null;
+
+
+/* ============================================================
+   Resize
+============================================================ */
+
+function resizeCanvas() {
+
+    const rect =
+        workspace.getBoundingClientRect();
+
+
+    const width =
+        Math.max(
+            1,
+            rect.width
+        );
+
+
+    const height =
+        Math.max(
+            1,
+            rect.height
+        );
+
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+
+    canvas.width =
+        Math.round(
+            width *
+            dpr
+        );
+
+
+    canvas.height =
+        Math.round(
+            height *
+            dpr
+        );
+
+
+    canvas.style.width =
+        width +
+        "px";
+
+
+    canvas.style.height =
+        height +
+        "px";
+
+
+    render();
+
+}
+
+
+const observer =
+    new ResizeObserver(
+        resizeCanvas
+    );
+
+
+observer.observe(
+    workspace
+);
+
+
+/* ============================================================
+   Upload
+============================================================ */
+
+fileInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            fileInput.files?.[0];
+
+
+        if (!file)
+            return;
+
+
+        filename =
+            file.name
+                .replace(
+                    /\.[^/.]+$/,
+                    ""
+                ) ||
+            "image";
+
+
+        const url =
+            URL.createObjectURL(
+                file
+            );
+
+
+        const img =
+            new Image();
+
+
+        img.onload =
+            () => {
+
+                image =
+                    img;
+
+
+                loaded =
+                    true;
+
+
+                regions =
+                    [];
+
+
+                selectedRegion =
+                    -1;
+
+
+                empty.hidden =
+                    true;
+
+
+                zoomBox.hidden =
+                    false;
+
+
+                addButton.disabled =
+                    false;
+
+
+                deleteButton.disabled =
+                    true;
+
+
+                fitTopButton.disabled =
+                    false;
+
+
+                downloadButton.disabled =
+                    false;
+
+
+                requestAnimationFrame(
+                    () => {
+
+                        requestAnimationFrame(
+                            async () => {
+
+                                resizeCanvas();
+
+                                fitView();
+
+                                await rebuildBlur();
+
+                                render();
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                URL.revokeObjectURL(
+                    url
+                );
+
+            };
+
+
+        img.src =
+            url;
+
+    }
+);
+
+
+/* ============================================================
+   Fit
+============================================================ */
+
+function fitView() {
+
+    if (
+        !loaded
+    ) {
+        return;
+    }
+
+
+    const w =
+        workspace.clientWidth;
+
+
+    const h =
+        workspace.clientHeight;
+
+
+    const padding =
+        Math.max(
+            20,
+            Math.min(
+                45,
+                Math.min(
+                    w,
+                    h
+                ) *
+                .05
+            )
+        );
+
+
+    const sx =
+        (
+            w -
+            padding *
+            2
+        ) /
+        image.naturalWidth;
+
+
+    const sy =
+        (
+            h -
+            padding *
+            2
+        ) /
+        image.naturalHeight;
+
+
+    view.fitScale =
+        Math.min(
+            sx,
+            sy
+        );
+
+
+    view.scale =
+        view.fitScale;
+
+
+    view.x =
+        (
+            w -
+            image.naturalWidth *
+            view.scale
+        ) /
+        2;
+
+
+    view.y =
+        (
+            h -
+            image.naturalHeight *
+            view.scale
+        ) /
+        2;
+
+
+    updateZoomText();
+
+    render();
+
+}
+
+
+fitButton.addEventListener(
+    "click",
+    fitView
+);
+
+
+fitTopButton.addEventListener(
+    "click",
+    fitView
+);
+
+
+/* ============================================================
+   Zoom
+============================================================ */
+
+function minimumScale() {
+
+    return Math.max(
+        view.fitScale *
+        .25,
+        .002
+    );
+
+}
+
+
+function maximumScale() {
+
+    return Math.max(
+        12,
+        view.fitScale *
+        30
+    );
+
+}
+
+
+function zoomAt(
+    sx,
+    sy,
+    newScale
+) {
+
+    if (
+        !loaded
+    ) {
+        return;
+    }
+
+
+    newScale =
+        clamp(
+
+            newScale,
+
+            minimumScale(),
+
+            maximumScale()
+
+        );
+
+
+    const ix =
+        (
+            sx -
+            view.x
+        ) /
+        view.scale;
+
+
+    const iy =
+        (
+            sy -
+            view.y
+        ) /
+        view.scale;
+
+
+    view.scale =
+        newScale;
+
+
+    view.x =
+        sx -
+        ix *
+        newScale;
+
+
+    view.y =
+        sy -
+        iy *
+        newScale;
+
+
+    updateZoomText();
+
+    render();
+
+}
+
+
+zoomIn.addEventListener(
+    "click",
+    () => {
+
+        zoomAt(
+
+            workspace.clientWidth /
+            2,
+
+            workspace.clientHeight /
+            2,
+
+            view.scale *
+            1.3
+
+        );
+
+    }
+);
+
+
+zoomOut.addEventListener(
+    "click",
+    () => {
+
+        zoomAt(
+
+            workspace.clientWidth /
+            2,
+
+            workspace.clientHeight /
+            2,
+
+            view.scale /
+            1.3
+
+        );
+
+    }
+);
+
+
+canvas.addEventListener(
+    "wheel",
+    event => {
+
+        if (
+            !loaded
+        ) {
+            return;
+        }
+
+
+        event.preventDefault();
+
+
+        const point =
+            screenPosition(
+                event
+            );
+
+
+        const factor =
+            Math.exp(
+                -event.deltaY *
+                .0015
+            );
+
+
+        zoomAt(
+
+            point.x,
+
+            point.y,
+
+            view.scale *
+            factor
+
+        );
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+function updateZoomText() {
+
+    zoomText.textContent =
+        Math.round(
+            view.scale *
+            100
+        ) +
+        "%";
+
+}
+
+
+/* ============================================================
+   New region
+============================================================ */
+
+addButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !loaded
+        ) {
+            return;
+        }
+
+
+        let center =
+            screenToImage(
+
+                workspace.clientWidth /
+                2,
+
+                workspace.clientHeight /
+                2
+
+            );
+
+
+        const visibleW =
+            workspace.clientWidth /
+            view.scale;
+
+
+        const visibleH =
+            workspace.clientHeight /
+            view.scale;
+
+
+        let rw =
+            Math.min(
+
+                image.naturalWidth *
+                .38,
+
+                visibleW *
+                .45
+
+            );
+
+
+        let rh =
+            Math.min(
+
+                image.naturalHeight *
+                .24,
+
+                visibleH *
+                .28
+
+            );
+
+
+        rw =
+            Math.max(
+
+                rw,
+
+                image.naturalWidth *
+                .04
+
+            );
+
+
+        rh =
+            Math.max(
+
+                rh,
+
+                image.naturalHeight *
+                .04
+
+            );
+
+
+        rw =
+            Math.min(
+
+                rw,
+
+                image.naturalWidth *
+                .8
+
+            );
+
+
+        rh =
+            Math.min(
+
+                rh,
+
+                image.naturalHeight *
+                .8
+
+            );
+
+
+        center.x =
+            clamp(
+
+                center.x,
+
+                rw /
+                2,
+
+                image.naturalWidth -
+                rw /
+                2
+
+            );
+
+
+        center.y =
+            clamp(
+
+                center.y,
+
+                rh /
+                2,
+
+                image.naturalHeight -
+                rh /
+                2
+
+            );
+
+
+        regions.push({
+
+            points: [
+
+                {
+                    x:
+                        center.x -
+                        rw /
+                        2,
+
+                    y:
+                        center.y -
+                        rh /
+                        2
+                },
+
+                {
+                    x:
+                        center.x +
+                        rw /
+                        2,
+
+                    y:
+                        center.y -
+                        rh /
+                        2
+                },
+
+                {
+                    x:
+                        center.x +
+                        rw /
+                        2,
+
+                    y:
+                        center.y +
+                        rh /
+                        2
+                },
+
+                {
+                    x:
+                        center.x -
+                        rw /
+                        2,
+
+                    y:
+                        center.y +
+                        rh /
+                        2
+                }
+
+            ]
+
+        });
+
+
+        selectedRegion =
+            regions.length -
+            1;
+
+
+        deleteButton.disabled =
+            false;
+
+
+        render();
+
+    }
+);
+
+
+/* ============================================================
+   Delete
+============================================================ */
+
+deleteButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            selectedRegion <
+            0
+        ) {
+            return;
+        }
+
+
+        regions.splice(
+
+            selectedRegion,
+
+            1
+
+        );
+
+
+        if (
+            regions.length ===
+            0
+        ) {
+
+            selectedRegion =
+                -1;
+
+
+            deleteButton.disabled =
+                true;
+
+        } else {
+
+            selectedRegion =
+                Math.min(
+
+                    selectedRegion,
+
+                    regions.length -
+                    1
+
+                );
+
+        }
+
+
+        render();
+
+    }
+);
+
+
+/* ============================================================
+   Blur slider
+============================================================ */
+
+blurSlider.addEventListener(
+    "input",
+    () => {
+
+        blurAmount =
+            Number(
+                blurSlider.value
+            );
+
+
+        blurNumber.textContent =
+            blurAmount;
+
+
+        clearTimeout(
+            blurUpdateTimer
+        );
+
+
+        blurUpdateTimer =
+            setTimeout(
+                async () => {
+
+                    await rebuildBlur();
+
+                    render();
+
+                },
+                80
+            );
+
+    }
+);
+
+
+/* ============================================================
+   TRUE PIXEL BLUR
+
+   這裡完全沒有使用：
+   ctx.filter
+   CSS blur
+   backdrop-filter
+
+   是直接修改 ImageData。
+============================================================ */
+
+async function rebuildBlur() {
+
+    if (
+        !loaded
+    ) {
+        return;
+    }
+
+
+    const currentJob =
+        ++blurJobID;
+
+
+    processing.hidden =
+        false;
+
+
+    /*
+        Safari / iPad 效能考量。
+
+        我們先把圖片縮到最高約 1200px，
+        做真正 pixel blur，
+        預覽與輸出再放回原尺寸。
+
+        因為是模糊效果，
+        這樣視覺上仍然非常自然，
+        但速度快非常多。
+    */
+
+    const maxSide =
+        1200;
+
+
+    const biggest =
+        Math.max(
+
+            image.naturalWidth,
+
+            image.naturalHeight
+
+        );
+
+
+    const ratio =
+        Math.min(
+
+            1,
+
+            maxSide /
+            biggest
+
+        );
+
+
+    const width =
+        Math.max(
+
+            1,
+
+            Math.round(
+                image.naturalWidth *
+                ratio
+            )
+
+        );
+
+
+    const height =
+        Math.max(
+
+            1,
+
+            Math.round(
+                image.naturalHeight *
+                ratio
+            )
+
+        );
+
+
+    blurCanvas.width =
+        width;
+
+
+    blurCanvas.height =
+        height;
+
+
+    blurCtx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    blurCtx.drawImage(
+
+        image,
+
+        0,
+        0,
+
+        width,
+
+        height
+
+    );
+
+
+    /*
+        0 = 不模糊
+    */
+
+    if (
+        blurAmount <=
+        0
+    ) {
+
+        processing.hidden =
+            true;
+
+
+        return;
+
+    }
+
+
+    /*
+        0~100
+        映射到縮圖上的 box blur radius
+
+        不是線性，
+        讓低強度比較細，
+        高強度可以真的很糊。
+    */
+
+    const radius =
+        Math.max(
+
+            1,
+
+            Math.round(
+
+                1 +
+                Math.pow(
+                    blurAmount /
+                    100,
+                    1.35
+                ) *
+                34
+
+            )
+
+        );
+
+
+    /*
+        讓 UI 有機會刷新
+    */
+
+    await sleep(
+        10
+    );
+
+
+    if (
+        currentJob !==
+        blurJobID
+    ) {
+        return;
+    }
+
+
+    let imageData =
+        blurCtx.getImageData(
+
+            0,
+            0,
+            width,
+            height
+
+        );
+
+
+    /*
+        做三次 Box Blur，
+        視覺上很接近 Gaussian Blur。
+    */
+
+    imageData =
+        boxBlurImageData(
+
+            imageData,
+
+            radius,
+
+            3
+
+        );
+
+
+    if (
+        currentJob !==
+        blurJobID
+    ) {
+        return;
+    }
+
+
+    blurCtx.putImageData(
+
+        imageData,
+
+        0,
+        0
+
+    );
+
+
+    processing.hidden =
+        true;
+
+}
+
+
+/* ============================================================
+   Fast box blur
+============================================================ */
+
+function boxBlurImageData(
+    imageData,
+    radius,
+    passes
+) {
+
+    const width =
+        imageData.width;
+
+
+    const height =
+        imageData.height;
+
+
+    let source =
+        new Uint8ClampedArray(
+            imageData.data
+        );
+
+
+    let destination =
+        new Uint8ClampedArray(
+            source.length
+        );
+
+
+    const temporary =
+        new Uint8ClampedArray(
+            source.length
+        );
+
+
+    for (
+        let pass = 0;
+        pass < passes;
+        pass++
+    ) {
+
+        boxBlurPass(
+
+            source,
+
+            destination,
+
+            temporary,
+
+            width,
+
+            height,
+
+            radius
+
+        );
+
+
+        const oldSource =
+            source;
+
+
+        source =
+            destination;
+
+
+        destination =
+            oldSource;
+
+    }
+
+
+    return new ImageData(
+
+        source,
+
+        width,
+
+        height
+
+    );
+
+}
+
+
+/* ============================================================
+   One blur pass:
+   horizontal + vertical
+============================================================ */
+
+function boxBlurPass(
+    src,
+    dst,
+    tmp,
+    width,
+    height,
+    radius
+) {
+
+    const size =
+        radius *
+        2 +
+        1;
+
+
+    /* =========================
+       Horizontal
+    ========================= */
+
+    for (
+        let y = 0;
+        y < height;
+        y++
+    ) {
+
+        const row =
+            y *
+            width;
+
+
+        let sr = 0;
+        let sg = 0;
+        let sb = 0;
+        let sa = 0;
+
+
+        for (
+            let k =
+                -radius;
+
+            k <=
+                radius;
+
+            k++
+        ) {
+
+            const x =
+                clampInt(
+
+                    k,
+
+                    0,
+
+                    width -
+                    1
+
+                );
+
+
+            const index =
+                (
+                    row +
+                    x
+                ) *
+                4;
+
+
+            sr +=
+                src[
+                    index
+                ];
+
+
+            sg +=
+                src[
+                    index +
+                    1
+                ];
+
+
+            sb +=
+                src[
+                    index +
+                    2
+                ];
+
+
+            sa +=
+                src[
+                    index +
+                    3
+                ];
+
+        }
+
+
+        for (
+            let x = 0;
+            x < width;
+            x++
+        ) {
+
+            const out =
+                (
+                    row +
+                    x
+                ) *
+                4;
+
+
+            tmp[out] =
+                sr /
+                size;
+
+
+            tmp[
+                out +
+                1
+            ] =
+                sg /
+                size;
+
+
+            tmp[
+                out +
+                2
+            ] =
+                sb /
+                size;
+
+
+            tmp[
+                out +
+                3
+            ] =
+                sa /
+                size;
+
+
+            const removeX =
+                clampInt(
+
+                    x -
+                    radius,
+
+                    0,
+
+                    width -
+                    1
+
+                );
+
+
+            const addX =
+                clampInt(
+
+                    x +
+                    radius +
+                    1,
+
+                    0,
+
+                    width -
+                    1
+
+                );
+
+
+            const removeIndex =
+                (
+                    row +
+                    removeX
+                ) *
+                4;
+
+
+            const addIndex =
+                (
+                    row +
+                    addX
+                ) *
+                4;
+
+
+            sr +=
+                src[
+                    addIndex
+                ] -
+                src[
+                    removeIndex
+                ];
+
+
+            sg +=
+                src[
+                    addIndex +
+                    1
+                ] -
+                src[
+                    removeIndex +
+                    1
+                ];
+
+
+            sb +=
+                src[
+                    addIndex +
+                    2
+                ] -
+                src[
+                    removeIndex +
+                    2
+                ];
+
+
+            sa +=
+                src[
+                    addIndex +
+                    3
+                ] -
+                src[
+                    removeIndex +
+                    3
+                ];
+
+        }
+
+    }
+
+
+    /* =========================
+       Vertical
+    ========================= */
+
+    for (
+        let x = 0;
+        x < width;
+        x++
+    ) {
+
+        let sr = 0;
+        let sg = 0;
+        let sb = 0;
+        let sa = 0;
+
+
+        for (
+            let k =
+                -radius;
+
+            k <=
+                radius;
+
+            k++
+        ) {
+
+            const y =
+                clampInt(
+
+                    k,
+
+                    0,
+
+                    height -
+                    1
+
+                );
+
+
+            const index =
+                (
+                    y *
+                    width +
+                    x
+                ) *
+                4;
+
+
+            sr +=
+                tmp[
+                    index
+                ];
+
+
+            sg +=
+                tmp[
+                    index +
+                    1
+                ];
+
+
+            sb +=
+                tmp[
+                    index +
+                    2
+                ];
+
+
+            sa +=
+                tmp[
+                    index +
+                    3
+                ];
+
+        }
+
+
+        for (
+            let y = 0;
+            y < height;
+            y++
+        ) {
+
+            const out =
+                (
+                    y *
+                    width +
+                    x
+                ) *
+                4;
+
+
+            dst[out] =
+                sr /
+                size;
+
+
+            dst[
+                out +
+                1
+            ] =
+                sg /
+                size;
+
+
+            dst[
+                out +
+                2
+            ] =
+                sb /
+                size;
+
+
+            dst[
+                out +
+                3
+            ] =
+                sa /
+                size;
+
+
+            const removeY =
+                clampInt(
+
+                    y -
+                    radius,
+
+                    0,
+
+                    height -
+                    1
+
+                );
+
+
+            const addY =
+                clampInt(
+
+                    y +
+                    radius +
+                    1,
+
+                    0,
+
+                    height -
+                    1
+
+                );
+
+
+            const removeIndex =
+                (
+                    removeY *
+                    width +
+                    x
+                ) *
+                4;
+
+
+            const addIndex =
+                (
+                    addY *
+                    width +
+                    x
+                ) *
+                4;
+
+
+            sr +=
+                tmp[
+                    addIndex
+                ] -
+                tmp[
+                    removeIndex
+                ];
+
+
+            sg +=
+                tmp[
+                    addIndex +
+                    1
+                ] -
+                tmp[
+                    removeIndex +
+                    1
+                ];
+
+
+            sb +=
+                tmp[
+                    addIndex +
+                    2
+                ] -
+                tmp[
+                    removeIndex +
+                    2
+                ];
+
+
+            sa +=
+                tmp[
+                    addIndex +
+                    3
+                ] -
+                tmp[
+                    removeIndex +
+                    3
+                ];
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   Render
+============================================================ */
+
+function render() {
+
+    const cssW =
+        workspace.clientWidth;
+
+
+    const cssH =
+        workspace.clientHeight;
+
+
+    if (
+        cssW <= 0 ||
+        cssH <= 0
+    ) {
+        return;
+    }
+
+
+    const dpr =
+        canvas.width /
+        cssW;
+
+
+    ctx.setTransform(
+
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+
+    );
+
+
+    ctx.clearRect(
+
+        0,
+        0,
+
+        canvas.width,
+
+        canvas.height
+
+    );
+
+
+    if (
+        !loaded
+    ) {
+        return;
+    }
+
+
+    ctx.setTransform(
+
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+
+    );
+
+
+    /* shadow */
+
+    ctx.save();
+
+
+    ctx.shadowColor =
+        "rgba(0,0,0,.5)";
+
+
+    ctx.shadowBlur =
+        28;
+
+
+    ctx.shadowOffsetY =
+        8;
+
+
+    ctx.fillStyle =
+        "#050505";
+
+
+    ctx.fillRect(
+
+        view.x,
+
+        view.y,
+
+        image.naturalWidth *
+        view.scale,
+
+        image.naturalHeight *
+        view.scale
+
+    );
+
+
+    ctx.restore();
+
+
+    /* Image coordinates */
+
+    ctx.save();
+
+
+    ctx.translate(
+
+        view.x,
+
+        view.y
+
+    );
+
+
+    ctx.scale(
+
+        view.scale,
+
+        view.scale
+
+    );
+
+
+    /* source */
+
+    ctx.drawImage(
+
+        image,
+
+        0,
+        0,
+
+        image.naturalWidth,
+
+        image.naturalHeight
+
+    );
+
+
+    /* blur polygons */
+
+    for (
+        const region of
+        regions
+    ) {
+
+        drawBlurredRegion(
+
+            ctx,
+
+            region.points
+
+        );
+
+    }
+
+
+    /* controls */
+
+    for (
+        let i = 0;
+        i < regions.length;
+        i++
+    ) {
+
+        drawRegionControl(
+
+            ctx,
+
+            regions[i],
+
+            i ===
+            selectedRegion
+
+        );
+
+    }
+
+
+    ctx.restore();
+
+}
+
+
+/* ============================================================
+   Draw actual blur
+============================================================ */
+
+function drawBlurredRegion(
+    target,
+    points
+) {
+
+    if (
+        blurAmount <=
+        0
+    ) {
+        return;
+    }
+
+
+    target.save();
+
+
+    polygonPath(
+
+        target,
+
+        points
+
+    );
+
+
+    target.clip();
+
+
+    target.drawImage(
+
+        blurCanvas,
+
+        0,
+        0,
+
+        blurCanvas.width,
+
+        blurCanvas.height,
+
+        0,
+        0,
+
+        image.naturalWidth,
+
+        image.naturalHeight
+
+    );
+
+
+    target.restore();
+
+}
+
+
+/* ============================================================
+   Controls
+============================================================ */
+
+function drawRegionControl(
+    target,
+    region,
+    selected
+) {
+
+    const inverse =
+        1 /
+        view.scale;
+
+
+    target.save();
+
+
+    polygonPath(
+
+        target,
+
+        region.points
+
+    );
+
+
+    target.fillStyle =
+        selected
+            ?
+            "rgba(10,132,255,.08)"
+            :
+            "rgba(255,255,255,.015)";
+
+
+    target.fill();
+
+
+    target.lineWidth =
+        (
+            selected
+                ? 2.5
+                : 1.3
+        ) *
+        inverse;
+
+
+    target.strokeStyle =
+        selected
+            ?
+            "#0a84ff"
+            :
+            "rgba(255,255,255,.7)";
+
+
+    target.stroke();
+
+
+    if (
+        selected
+    ) {
+
+        const radius =
+            8.5 *
+            inverse;
+
+
+        const border =
+            2.7 *
+            inverse;
+
+
+        for (
+            const p of
+            region.points
+        ) {
+
+            target.beginPath();
+
+
+            target.arc(
+
+                p.x,
+
+                p.y,
+
+                radius,
+
+                0,
+
+                Math.PI *
+                2
+
+            );
+
+
+            target.fillStyle =
+                "#fff";
+
+
+            target.fill();
+
+
+            target.lineWidth =
+                border;
+
+
+            target.strokeStyle =
+                "#0a84ff";
+
+
+            target.stroke();
+
+        }
+
+    }
+
+
+    target.restore();
+
+}
+
+
+/* ============================================================
+   Polygon
+============================================================ */
+
+function polygonPath(
+    target,
+    points
+) {
+
+    target.beginPath();
+
+
+    target.moveTo(
+
+        points[0].x,
+
+        points[0].y
+
+    );
+
+
+    for (
+        let i = 1;
+        i < points.length;
+        i++
+    ) {
+
+        target.lineTo(
+
+            points[i].x,
+
+            points[i].y
+
+        );
+
+    }
+
+
+    target.closePath();
+
+}
+
+
+/* ============================================================
+   Coordinate
+============================================================ */
+
+function screenPosition(
+    event
+) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            event.clientX -
+            rect.left,
+
+        y:
+            event.clientY -
+            rect.top
+
+    };
+
+}
+
+
+function screenToImage(
+    sx,
+    sy
+) {
+
+    return {
+
+        x:
+            (
+                sx -
+                view.x
+            ) /
+            view.scale,
+
+        y:
+            (
+                sy -
+                view.y
+            ) /
+            view.scale
+
+    };
+
+}
+
+
+/* ============================================================
+   Handle hit
+============================================================ */
+
+function findHandle(
+    x,
+    y
+) {
+
+    if (
+        selectedRegion <
+        0
+    ) {
+        return -1;
+    }
+
+
+    const points =
+        regions[
+            selectedRegion
+        ].points;
+
+
+    const hitRadius =
+        24 /
+        view.scale;
+
+
+    const radiusSquared =
+        hitRadius *
+        hitRadius;
+
+
+    for (
+        let i = 0;
+        i < points.length;
+        i++
+    ) {
+
+        const dx =
+            x -
+            points[i].x;
+
+
+        const dy =
+            y -
+            points[i].y;
+
+
+        if (
+            dx *
+            dx +
+            dy *
+            dy <=
+            radiusSquared
+        ) {
+
+            return i;
+
+        }
+
+    }
+
+
+    return -1;
+
+}
+
+
+/* ============================================================
+   Region hit
+============================================================ */
+
+function findRegion(
+    x,
+    y
+) {
+
+    for (
+        let i =
+            regions.length -
+            1;
+
+        i >= 0;
+
+        i--
+    ) {
+
+        if (
+            pointInsidePolygon(
+
+                x,
+
+                y,
+
+                regions[i].points
+
+            )
+        ) {
+
+            return i;
+
+        }
+
+    }
+
+
+    return -1;
+
+}
+
+
+function pointInsidePolygon(
+    x,
+    y,
+    points
+) {
+
+    let inside =
+        false;
+
+
+    for (
+
+        let i = 0,
+            j =
+                points.length -
+                1;
+
+        i <
+        points.length;
+
+        j = i++
+
+    ) {
+
+        const xi =
+            points[i].x;
+
+
+        const yi =
+            points[i].y;
+
+
+        const xj =
+            points[j].x;
+
+
+        const yj =
+            points[j].y;
+
+
+        const hit =
+            (
+                (yi > y) !==
+                (yj > y)
+            )
+            &&
+            (
+                x <
+                (
+                    (xj - xi) *
+                    (y - yi)
+                ) /
+                (yj - yi) +
+                xi
+            );
+
+
+        if (
+            hit
+        ) {
+
+            inside =
+                !inside;
+
+        }
+
+    }
+
+
+    return inside;
+
+}
+
+
+/* ============================================================
+   Pointer down
+
+   角點 → 拉角點
+   區域 → 拖區域
+   其他 → 拖畫面
+   雙指 → Zoom + Pan
+============================================================ */
+
+canvas.addEventListener(
+    "pointerdown",
+    event => {
+
+        if (
+            !loaded
+        ) {
+            return;
+        }
+
+
+        canvas.setPointerCapture(
+            event.pointerId
+        );
+
+
+        const screen =
+            screenPosition(
+                event
+            );
+
+
+        pointers.set(
+
+            event.pointerId,
+
+            screen
+
+        );
+
+
+        if (
+            pointers.size ===
+            2
+        ) {
+
+            dragState =
+                null;
+
+
+            beginPinch();
+
+
+            return;
+
+        }
+
+
+        if (
+            pointers.size >
+            2
+        ) {
+            return;
+        }
+
+
+        const img =
+            screenToImage(
+
+                screen.x,
+
+                screen.y
+
+            );
+
+
+        const handle =
+            findHandle(
+
+                img.x,
+
+                img.y
+
+            );
+
+
+        if (
+            handle >= 0
+        ) {
+
+            dragState = {
+
+                type:
+                    "handle",
+
+                pointerID:
+                    event.pointerId,
+
+                handle
+
+            };
+
+
+            return;
+
+        }
+
+
+        const hitRegion =
+            findRegion(
+
+                img.x,
+
+                img.y
+
+            );
+
+
+        if (
+            hitRegion >= 0
+        ) {
+
+            selectedRegion =
+                hitRegion;
+
+
+            deleteButton.disabled =
+                false;
+
+
+            dragState = {
+
+                type:
+                    "region",
+
+                pointerID:
+                    event.pointerId,
+
+                startImage:
+                    img,
+
+                original:
+                    regions[
+                        hitRegion
+                    ].points.map(
+                        p => ({
+
+                            x:
+                                p.x,
+
+                            y:
+                                p.y
+
+                        })
+                    )
+
+            };
+
+
+            render();
+
+
+            return;
+
+        }
+
+
+        selectedRegion =
+            -1;
+
+
+        deleteButton.disabled =
+            true;
+
+
+        dragState = {
+
+            type:
+                "pan",
+
+            pointerID:
+                event.pointerId,
+
+            startScreen:
+                screen,
+
+            startX:
+                view.x,
+
+            startY:
+                view.y
+
+        };
+
+
+        render();
+
+    }
+);
+
+
+/* ============================================================
+   Pointer move
+============================================================ */
+
+canvas.addEventListener(
+    "pointermove",
+    event => {
+
+        if (
+            !loaded
+        ) {
+            return;
+        }
+
+
+        const screen =
+            screenPosition(
+                event
+            );
+
+
+        if (
+            !pointers.has(
+                event.pointerId
+            )
+        ) {
+            return;
+        }
+
+
+        pointers.set(
+
+            event.pointerId,
+
+            screen
+
+        );
+
+
+        if (
+            pointers.size >=
+            2 &&
+            pinchState
+        ) {
+
+            updatePinch();
+
+            return;
+
+        }
+
+
+        if (
+            !dragState ||
+            dragState.pointerID !==
+            event.pointerId
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            dragState.type ===
+            "pan"
+        ) {
+
+            view.x =
+                dragState.startX +
+                (
+                    screen.x -
+                    dragState
+                        .startScreen.x
+                );
+
+
+            view.y =
+                dragState.startY +
+                (
+                    screen.y -
+                    dragState
+                        .startScreen.y
+                );
+
+
+            render();
+
+
+            return;
+
+        }
+
+
+        const img =
+            screenToImage(
+
+                screen.x,
+
+                screen.y
+
+            );
+
+
+        if (
+            dragState.type ===
+            "handle" &&
+            selectedRegion >=
+            0
+        ) {
+
+            const p =
+                regions[
+                    selectedRegion
+                ].points[
+                    dragState.handle
+                ];
+
+
+            p.x =
+                clamp(
+
+                    img.x,
+
+                    0,
+
+                    image.naturalWidth
+
+                );
+
+
+            p.y =
+                clamp(
+
+                    img.y,
+
+                    0,
+
+                    image.naturalHeight
+
+                );
+
+
+            render();
+
+
+            return;
+
+        }
+
+
+        if (
+            dragState.type ===
+            "region" &&
+            selectedRegion >=
+            0
+        ) {
+
+            let dx =
+                img.x -
+                dragState
+                    .startImage.x;
+
+
+            let dy =
+                img.y -
+                dragState
+                    .startImage.y;
+
+
+            const original =
+                dragState.original;
+
+
+            let minX =
+                Infinity;
+
+
+            let maxX =
+                -Infinity;
+
+
+            let minY =
+                Infinity;
+
+
+            let maxY =
+                -Infinity;
+
+
+            for (
+                const p of
+                original
+            ) {
+
+                minX =
+                    Math.min(
+
+                        minX,
+
+                        p.x +
+                        dx
+
+                    );
+
+
+                maxX =
+                    Math.max(
+
+                        maxX,
+
+                        p.x +
+                        dx
+
+                    );
+
+
+                minY =
+                    Math.min(
+
+                        minY,
+
+                        p.y +
+                        dy
+
+                    );
+
+
+                maxY =
+                    Math.max(
+
+                        maxY,
+
+                        p.y +
+                        dy
+
+                    );
+
+            }
+
+
+            if (
+                minX <
+                0
+            ) {
+
+                dx -=
+                    minX;
+
+            }
+
+
+            if (
+                maxX >
+                image.naturalWidth
+            ) {
+
+                dx -=
+                    maxX -
+                    image.naturalWidth;
+
+            }
+
+
+            if (
+                minY <
+                0
+            ) {
+
+                dy -=
+                    minY;
+
+            }
+
+
+            if (
+                maxY >
+                image.naturalHeight
+            ) {
+
+                dy -=
+                    maxY -
+                    image.naturalHeight;
+
+            }
+
+
+            regions[
+                selectedRegion
+            ].points =
+                original.map(
+                    p => ({
+
+                        x:
+                            p.x +
+                            dx,
+
+                        y:
+                            p.y +
+                            dy
+
+                    })
+                );
+
+
+            render();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   Pointer end
+============================================================ */
+
+function endPointer(
+    event
+) {
+
+    pointers.delete(
+        event.pointerId
+    );
+
+
+    if (
+        pointers.size <
+        2
+    ) {
+
+        pinchState =
+            null;
+
+    }
+
+
+    if (
+        dragState &&
+        dragState.pointerID ===
+        event.pointerId
+    ) {
+
+        dragState =
+            null;
+
+    }
+
+}
+
+
+canvas.addEventListener(
+    "pointerup",
+    endPointer
+);
+
+
+canvas.addEventListener(
+    "pointercancel",
+    endPointer
+);
+
+
+/* ============================================================
+   Pinch
+============================================================ */
+
+function beginPinch() {
+
+    const values =
+        [...pointers.values()];
+
+
+    if (
+        values.length <
+        2
+    ) {
+        return;
+    }
+
+
+    const a =
+        values[0];
+
+
+    const b =
+        values[1];
+
+
+    const midpoint = {
+
+        x:
+            (
+                a.x +
+                b.x
+            ) /
+            2,
+
+        y:
+            (
+                a.y +
+                b.y
+            ) /
+            2
+
+    };
+
+
+    pinchState = {
+
+        distance:
+            Math.max(
+
+                1,
+
+                pointDistance(
+                    a,
+                    b
+                )
+
+            ),
+
+        scale:
+            view.scale,
+
+        anchor:
+            screenToImage(
+
+                midpoint.x,
+
+                midpoint.y
+
+            )
+
+    };
+
+}
+
+
+function updatePinch() {
+
+    const values =
+        [...pointers.values()];
+
+
+    if (
+        values.length <
+        2 ||
+        !pinchState
+    ) {
+        return;
+    }
+
+
+    const a =
+        values[0];
+
+
+    const b =
+        values[1];
+
+
+    const midpoint = {
+
+        x:
+            (
+                a.x +
+                b.x
+            ) /
+            2,
+
+        y:
+            (
+                a.y +
+                b.y
+            ) /
+            2
+
+    };
+
+
+    const distance =
+        Math.max(
+
+            1,
+
+            pointDistance(
+                a,
+                b
+            )
+
+        );
+
+
+    const newScale =
+        clamp(
+
+            pinchState.scale *
+            (
+                distance /
+                pinchState.distance
+            ),
+
+            minimumScale(),
+
+            maximumScale()
+
+        );
+
+
+    view.scale =
+        newScale;
+
+
+    view.x =
+        midpoint.x -
+        pinchState.anchor.x *
+        newScale;
+
+
+    view.y =
+        midpoint.y -
+        pinchState.anchor.y *
+        newScale;
+
+
+    updateZoomText();
+
+    render();
+
+}
+
+
+/* ============================================================
+   Download
+============================================================ */
+
+downloadButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !loaded
+        ) {
+            return;
+        }
+
+
+        const output =
+            document.createElement(
+                "canvas"
+            );
+
+
+        output.width =
+            image.naturalWidth;
+
+
+        output.height =
+            image.naturalHeight;
+
+
+        const out =
+            output.getContext(
+                "2d"
+            );
+
+
+        out.drawImage(
+
+            image,
+
+            0,
+            0,
+
+            output.width,
+
+            output.height
+
+        );
+
+
+        if (
+            blurAmount >
+            0
+        ) {
+
+            for (
+                const region of
+                regions
+            ) {
+
+                out.save();
+
+
+                polygonPath(
+
+                    out,
+
+                    region.points
+
+                );
+
+
+                out.clip();
+
+
+                /*
+                    直接使用與預覽完全相同的
+                    pixel blurred image。
+                */
+
+                out.drawImage(
+
+                    blurCanvas,
+
+                    0,
+                    0,
+
+                    blurCanvas.width,
+
+                    blurCanvas.height,
+
+                    0,
+                    0,
+
+                    output.width,
+
+                    output.height
+
+                );
+
+
+                out.restore();
+
+            }
+
+        }
+
+
+        output.toBlob(
+            blob => {
+
+                if (
+                    !blob
+                ) {
+                    return;
+                }
+
+
+                const url =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+
+                const a =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                a.href =
+                    url;
+
+
+                a.download =
+                    filename +
+                    "-blur.png";
+
+
+                document.body.appendChild(
+                    a
+                );
+
+
+                a.click();
+
+
+                a.remove();
+
+
+                setTimeout(
+                    () => {
+
+                        URL.revokeObjectURL(
+                            url
+                        );
+
+                    },
+                    1000
+                );
+
+            },
+            "image/png"
+        );
+
+    }
+);
+
+
+/* ============================================================
+   Helpers
+============================================================ */
+
+function clamp(
+    value,
+    min,
+    max
+) {
+
+    return Math.max(
+
+        min,
+
+        Math.min(
+            max,
+            value
+        )
+
+    );
+
+}
+
+
+function clampInt(
+    value,
+    min,
+    max
+) {
+
+    if (
+        value <
+        min
+    ) {
+        return min;
+    }
+
+
+    if (
+        value >
+        max
+    ) {
+        return max;
+    }
+
+
+    return value;
+
+}
+
+
+function pointDistance(
+    a,
+    b
+) {
+
+    return Math.hypot(
+
+        b.x -
+        a.x,
+
+        b.y -
+        a.y
+
+    );
+
+}
+
+
+function sleep(
+    ms
+) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                ms
+            )
+    );
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,5 +1,7 @@
 import { LIMITS, clamp, openImage, canvasOf, release, sizeText, download } from '../../assets/image-tools/core.js';
 
+if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embed');
+
 const $ = id => document.getElementById(id);
 const canvas = $('photo-canvas');
 const context = canvas.getContext('2d', { willReadFrequently: true });

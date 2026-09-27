@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>像素顏色替換 — 萬能工具箱</title>
+<meta name="description" content="點選圖片中的顏色，依容差替換相同與相近像素，可向周圍擴張範圍。">
+<meta name="theme-color" content="#f7f8f4">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="stylesheet" href="../../site.css">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Microsoft JhengHei",
+        sans-serif;
+    background: #111214;
+    color: #f5f5f5;
+}
+
+.legacy-title {
+    padding: 18px 20px;
+    border-bottom: 1px solid #2d2f34;
+    background: #18191c;
+}
+
+.legacy-title h1 {
+    margin: 0;
+    font-size: 21px;
+}
+
+.legacy-title p {
+    margin: 6px 0 0;
+    color: #a9abb2;
+    font-size: 13px;
+}
+
+.app {
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    min-height: calc(100vh - 80px);
+}
+
+.panel {
+    padding: 18px;
+    background: #18191c;
+    border-right: 1px solid #2d2f34;
+    overflow-y: auto;
+}
+
+.section {
+    background: #202226;
+    border: 1px solid #303238;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+button,
+.file-button {
+    width: 100%;
+    min-height: 44px;
+    border: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: .15s;
+}
+
+button:hover,
+.file-button:hover {
+    filter: brightness(1.08);
+}
+
+button:active,
+.file-button:active {
+    transform: scale(.985);
+}
+
+.file-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #3478f6;
+    color: white;
+}
+
+#fileInput {
+    display: none;
+}
+
+button.secondary {
+    background: #34363c;
+    color: #fff;
+}
+
+button.download {
+    background: #2ecc71;
+    color: #07190f;
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.row label {
+    flex: 1;
+    color: #d9d9dc;
+    font-size: 13px;
+}
+
+.color-box {
+    width: 54px;
+    height: 42px;
+    padding: 2px;
+    border: 1px solid #484b53;
+    border-radius: 9px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.color-preview {
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+    border: 1px solid #555860;
+    flex: none;
+}
+
+.color-data {
+    flex: 1;
+    min-width: 0;
+}
+
+.color-data strong {
+    display: block;
+    font-size: 14px;
+}
+
+.color-data span {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: #93969e;
+    word-break: break-all;
+}
+
+.range-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+    font-size: 13px;
+}
+
+.range-value {
+    color: #71a4ff;
+    font-weight: 700;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+.switch-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.switch {
+    position: relative;
+    width: 47px;
+    height: 27px;
+    flex: none;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #41444a;
+    border-radius: 99px;
+    transition: .2s;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 21px;
+    height: 21px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: .2s;
+}
+
+.switch input:checked + .slider {
+    background: #3478f6;
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+.description {
+    margin-top: 8px;
+    color: #92959d;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.number-input {
+    width: 76px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #454850;
+    background: #141518;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+}
+
+.workspace {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    background:
+        linear-gradient(45deg, #24262b 25%, transparent 25%),
+        linear-gradient(-45deg, #24262b 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #24262b 75%),
+        linear-gradient(-45deg, transparent 75%, #24262b 75%);
+    background-size: 24px 24px;
+    background-position:
+        0 0,
+        0 12px,
+        12px -12px,
+        -12px 0;
+}
+
+.canvas-area {
+    width: 100%;
+    height: calc(100vh - 80px);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.canvas-area.dragover::after {
+    content: "放開以上傳圖片";
+    position: fixed;
+    inset: 100px 30px 30px 360px;
+    background: rgba(52,120,246,.18);
+    border: 3px dashed #5790ff;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.canvas-container {
+    position: relative;
+    display: none;
+    box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    line-height: 0;
+}
+
+canvas {
+    display: block;
+    max-width: min(100%, 1200px);
+    max-height: calc(100vh - 145px);
+    width: auto;
+    height: auto;
+    cursor: crosshair;
+    image-rendering: auto;
+}
+
+.empty {
+    max-width: 420px;
+    text-align: center;
+    color: #8f929a;
+    line-height: 1.7;
+    padding: 40px;
+}
+
+.empty .icon {
+    font-size: 54px;
+    margin-bottom: 12px;
+}
+
+.status {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    padding: 9px 12px;
+    background: rgba(15,16,18,.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid #383b42;
+    border-radius: 10px;
+    color: #d6d7db;
+    font-size: 12px;
+    display: none;
+    z-index: 10;
+}
+
+.cursor-info {
+    position: fixed;
+    display: none;
+    z-index: 100;
+    pointer-events: none;
+    background: rgba(10,11,13,.94);
+    border: 1px solid #454851;
+    border-radius: 9px;
+    padding: 7px 9px;
+    font-size: 11px;
+    line-height: 1.45;
+    white-space: nowrap;
+}
+
+.pixel-color {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border: 1px solid #888;
+    margin-right: 5px;
+    vertical-align: -1px;
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 10px;
+}
+
+.mode-buttons button {
+    min-height: 36px;
+    font-size: 12px;
+}
+
+.mode-buttons button.active {
+    background: #3478f6;
+}
+
+.info {
+    display: grid;
+    gap: 5px;
+    color: #a9abb2;
+    font-size: 12px;
+}
+
+.info strong {
+    color: #f0f0f2;
+}
+
+.warning {
+    color: #ffbf69;
+}
+
+@media (max-width: 750px) {
+    .app {
+        display: block;
+    }
+
+    .panel {
+        border-right: none;
+        border-bottom: 1px solid #303238;
+    }
+
+    .canvas-area {
+        height: auto;
+        min-height: 55vh;
+        padding: 15px;
+    }
+
+    canvas {
+        max-height: none;
+    }
+
+    .canvas-area.dragover::after {
+        inset: 20px;
+    }
+}
+</style>
+
+<style>
+body { min-height: 100vh; background: var(--bg); color: var(--ink); font-family: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif; }
+.advanced-shell { width: min(1120px, calc(100% - 64px)); margin: 0 auto 48px; }
+.app { min-height: 700px; grid-template-columns: minmax(0, 1fr) 370px; grid-template-areas: "preview settings"; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
+.panel { grid-area: settings; padding: 0; background: #fff; border: 0; border-left: 1px solid var(--border); border-radius: 0; overflow-y: auto; }
+.workspace { grid-area: preview; min-width: 0; background: #fff; }
+.section { margin: 0; padding: 20px 22px; background: #fff; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; }
+.section-title { color: var(--ink); font-size: 18px; }
+.description, .info { color: var(--muted); font-size: 14px; }
+.file-button, button.download { background: var(--green); color: #fff; border-radius: 9px; }
+button.secondary { background: #fff; color: var(--green); border: 1px solid var(--border); border-radius: 9px; }
+button.secondary.active { background: var(--green); color: #fff; }
+.color-preview, .color-box, .number-input { border-color: var(--border); }
+.range-value { color: var(--green); }
+input[type=range], input[type=checkbox] { accent-color: var(--green); }
+.canvas-area { min-height: 650px; background: repeating-conic-gradient(#edf0e8 0 25%, #fcfdfb 0 50%) 0 / 18px 18px; }
+.empty { color: var(--muted); font-size: 16px; }
+.status { background: #f8fbf3; color: var(--green); border-color: var(--border); }
+.cursor-info { background: #fff; color: var(--ink); border: 1px solid var(--border); }
+body.embed .site-header, body.embed .tool-intro, body.embed .site-footer { display: none; }
+body.embed .advanced-shell { width: 100%; margin: 0; }
+body.embed .app { min-height: 100dvh; border: 0; border-radius: 0; }
+@media (max-width: 850px) { .advanced-shell { width: calc(100% - 36px); } .app { grid-template-columns: 1fr; grid-template-areas: "preview" "settings"; min-height: 0; } .panel { border-left: 0; border-top: 1px solid var(--border); } .canvas-area { min-height: 430px; } }
+@media (max-width: 500px) { .canvas-area { min-height: 320px; padding: 14px; } .section { padding: 18px; } }
+</style>
+</head>
+
+<body class="tool-page">
+
+<script>if(new URLSearchParams(location.search).has('embed'))document.body.classList.add('embed');</script>
+
+<a class="skip-link" href="#main-content">跳至主要內容</a>
+<header class="site-header"><nav class="site-nav" aria-label="主要導覽">
+    <a class="brand" href="../../index.html"><span class="brand-mark"><svg aria-hidden="true"><use href="../../assets/icons.svg#toolbox"></use></svg></span>萬能工具箱</a>
+    <a class="back-link" href="../../index.html#all-tools"><svg aria-hidden="true"><use href="../../assets/icons.svg#arrow-left"></use></svg>所有工具</a>
+</nav></header>
+<div class="tool-intro"><div class="tool-title-row"><span class="tool-icon yellow"><svg aria-hidden="true"><use href="../../assets/icons.svg#sparkles"></use></svg></span><h1>像素顏色替換</h1></div></div>
+<main id="main-content" class="advanced-shell">
+
+<div class="app">
+
+    <aside class="panel">
+
+        <div class="section">
+            <div class="section-title">1. 上傳圖片</div>
+
+            <label class="file-button">
+                選擇圖片
+                <input
+                    id="fileInput"
+                    type="file"
+                    accept="image/*"
+                >
+            </label>
+
+            <div id="imageInfo" class="info" style="margin-top:10px;">
+                尚未上傳圖片
+            </div>
+        </div>
+
+
+        <div class="section">
+            <div class="section-title">2. 要替換的原顏色</div>
+
+            <div class="row">
+                <div
+                    id="sourcePreview"
+                    class="color-preview"
+                    style="background:#ffffff;"
+                ></div>
+
+                <div class="color-data">
+                    <strong id="sourceHex">尚未選取</strong>
+                    <span id="sourceRgb">
+                        請直接點擊圖片上的顏色
+                    </span>
+                </div>
+            </div>
+
+            <div class="description">
+                直接點右側圖片即可吸取該位置的原始像素顏色。
+            </div>
+        </div>
+
+
+        <div class="section">
+            <div class="section-title">3. 替換成什麼顏色</div>
+
+            <div class="row">
+                <label>新顏色</label>
+
+                <input
+                    id="replacementColor"
+                    class="color-box"
+                    type="color"
+                    value="#ff0000"
+                >
+            </div>
+
+            <div class="row">
+                <div
+                    id="replacementPreview"
+                    class="color-preview"
+                    style="background:#ff0000;"
+                ></div>
+
+                <div class="color-data">
+                    <strong id="replacementHex">#FF0000</strong>
+                    <span>所有符合條件的像素都會變成此顏色</span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="section">
+            <div class="section-title">4. 顏色容差</div>
+
+            <div class="range-header">
+                <span>容差</span>
+                <span
+                    id="toleranceValue"
+                    class="range-value"
+                >0</span>
+            </div>
+
+            <input
+                id="tolerance"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="0"
+            >
+
+            <div class="description">
+                0 = 只替換 RGB 完全一樣的像素。提高後，和原顏色接近的像素也會一起替換。
+            </div>
+        </div>
+
+
+        <div class="section">
+            <div class="section-title">5. 周圍像素覆蓋</div>
+
+            <div class="switch-line">
+                <label class="switch">
+                    <input
+                        id="expandEnabled"
+                        type="checkbox"
+                    >
+                    <span class="slider"></span>
+                </label>
+
+                <span>把符合像素的周圍也塗成新顏色</span>
+            </div>
+
+            <div
+                id="expandControls"
+                style="
+                    margin-top:14px;
+                    opacity:.45;
+                    pointer-events:none;
+                "
+            >
+                <div class="row">
+                    <label>往周圍擴張</label>
+
+                    <input
+                        id="expandRadius"
+                        class="number-input"
+                        type="number"
+                        min="1"
+                        max="50"
+                        value="1"
+                    >
+
+                    <span style="font-size:13px;">px</span>
+                </div>
+
+                <input
+                    id="expandSlider"
+                    type="range"
+                    min="1"
+                    max="50"
+                    step="1"
+                    value="1"
+                    style="margin-top:10px;"
+                >
+
+                <div class="description">
+                    例如設為 3 px，原本被替換的像素向上、下、左、右與斜角最多再擴張 3 個像素。
+                </div>
+            </div>
+        </div>
+
+
+        <div class="section">
+            <div class="section-title">預覽</div>
+
+            <div class="mode-buttons">
+                <button
+                    id="showResult"
+                    class="secondary active"
+                    disabled
+                >
+                    處理後
+                </button>
+
+                <button
+                    id="showOriginal"
+                    class="secondary"
+                    disabled
+                >
+                    原圖
+                </button>
+            </div>
+
+            <div class="info">
+                <div>
+                    原始符合：
+                    <strong id="matchedCount">0</strong>
+                    像素
+                </div>
+
+                <div>
+                    最終覆蓋：
+                    <strong id="finalCount">0</strong>
+                    像素
+                </div>
+            </div>
+        </div>
+
+
+        <button
+            id="downloadBtn"
+            class="download"
+            disabled
+        >
+            下載 PNG
+        </button>
+
+    </aside>
+
+
+    <section class="workspace">
+
+        <div
+            id="canvasArea"
+            class="canvas-area"
+        >
+
+            <div id="emptyState" class="empty">
+                <div class="icon">🎨</div>
+                上傳圖片後，直接點圖片上的任一位置，
+                就能選取該像素的顏色。
+                <br><br>
+                也可以直接把圖片拖進這裡。
+            </div>
+
+            <div
+                id="canvasContainer"
+                class="canvas-container"
+            >
+                <canvas id="canvas"></canvas>
+            </div>
+
+        </div>
+
+        <div id="status" class="status"></div>
+
+    </section>
+
+</div>
+
+</main>
+
+<footer class="site-footer"><a class="footer-brand" href="../../index.html">萬能工具箱</a><a href="../../index.html#all-tools">所有工具 →</a></footer>
+
+
+<div id="cursorInfo" class="cursor-info"></div>
+
+
+<script>
+const fileInput = document.getElementById("fileInput");
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d", {
+    willReadFrequently: true
+});
+
+const canvasArea = document.getElementById("canvasArea");
+const canvasContainer = document.getElementById("canvasContainer");
+const emptyState = document.getElementById("emptyState");
+
+const sourcePreview = document.getElementById("sourcePreview");
+const sourceHex = document.getElementById("sourceHex");
+const sourceRgb = document.getElementById("sourceRgb");
+
+const replacementColor =
+    document.getElementById("replacementColor");
+
+const replacementPreview =
+    document.getElementById("replacementPreview");
+
+const replacementHex =
+    document.getElementById("replacementHex");
+
+const tolerance = document.getElementById("tolerance");
+const toleranceValue =
+    document.getElementById("toleranceValue");
+
+const expandEnabled =
+    document.getElementById("expandEnabled");
+
+const expandControls =
+    document.getElementById("expandControls");
+
+const expandRadius =
+    document.getElementById("expandRadius");
+
+const expandSlider =
+    document.getElementById("expandSlider");
+
+const downloadBtn =
+    document.getElementById("downloadBtn");
+
+const showResult =
+    document.getElementById("showResult");
+
+const showOriginal =
+    document.getElementById("showOriginal");
+
+const matchedCount =
+    document.getElementById("matchedCount");
+
+const finalCount =
+    document.getElementById("finalCount");
+
+const imageInfo =
+    document.getElementById("imageInfo");
+
+const cursorInfo =
+    document.getElementById("cursorInfo");
+
+const status =
+    document.getElementById("status");
+
+
+let originalImageData = null;
+let resultImageData = null;
+
+let sourceColor = null;
+
+let imageWidth = 0;
+let imageHeight = 0;
+
+let currentMode = "result";
+
+let processFrame = null;
+
+
+/* =========================
+   基本工具
+========================= */
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+
+function rgbToHex(r, g, b) {
+    return "#" +
+        [r, g, b]
+        .map(v =>
+            v.toString(16)
+            .padStart(2, "0")
+        )
+        .join("")
+        .toUpperCase();
+}
+
+
+function hexToRgb(hex) {
+    const value =
+        parseInt(hex.substring(1), 16);
+
+    return {
+        r: (value >> 16) & 255,
+        g: (value >> 8) & 255,
+        b: value & 255
+    };
+}
+
+
+function formatNumber(n) {
+    return n.toLocaleString();
+}
+
+
+function showStatus(text) {
+    status.textContent = text;
+    status.style.display = "block";
+}
+
+
+function hideStatus() {
+    status.style.display = "none";
+}
+
+
+/* =========================
+   載入圖片
+========================= */
+
+fileInput.addEventListener(
+    "change",
+    event => {
+        const file =
+            event.target.files[0];
+
+        if (file) {
+            loadImageFile(file);
+        }
+    }
+);
+
+
+function loadImageFile(file) {
+
+    if (!file.type.startsWith("image/")) {
+        alert("請選擇圖片檔案。");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+
+        const img = new Image();
+
+        img.onload = () => {
+
+            imageWidth = img.naturalWidth;
+            imageHeight = img.naturalHeight;
+
+            canvas.width = imageWidth;
+            canvas.height = imageHeight;
+
+            ctx.clearRect(
+                0,
+                0,
+                imageWidth,
+                imageHeight
+            );
+
+            ctx.drawImage(
+                img,
+                0,
+                0,
+                imageWidth,
+                imageHeight
+            );
+
+            originalImageData =
+                ctx.getImageData(
+                    0,
+                    0,
+                    imageWidth,
+                    imageHeight
+                );
+
+            resultImageData =
+                new ImageData(
+                    new Uint8ClampedArray(
+                        originalImageData.data
+                    ),
+                    imageWidth,
+                    imageHeight
+                );
+
+            sourceColor = null;
+
+            sourceHex.textContent =
+                "尚未選取";
+
+            sourceRgb.textContent =
+                "請直接點擊圖片上的顏色";
+
+            sourcePreview.style.background =
+                "#ffffff";
+
+            matchedCount.textContent = "0";
+            finalCount.textContent = "0";
+
+            canvasContainer.style.display =
+                "block";
+
+            emptyState.style.display =
+                "none";
+
+            downloadBtn.disabled = true;
+            showResult.disabled = false;
+            showOriginal.disabled = false;
+
+            imageInfo.innerHTML =
+                `
+                <div>
+                    檔案：
+                    <strong>${escapeHtml(file.name)}</strong>
+                </div>
+                <div>
+                    尺寸：
+                    <strong>
+                        ${imageWidth} × ${imageHeight}
+                    </strong>
+                </div>
+                `;
+
+            currentMode = "result";
+            updateModeButtons();
+
+            ctx.putImageData(
+                resultImageData,
+                0,
+                0
+            );
+        };
+
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
+function escapeHtml(text) {
+
+    return text.replace(
+        /[&<>"']/g,
+        char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        })[char]
+    );
+}
+
+
+/* =========================
+   拖放上傳
+========================= */
+
+["dragenter", "dragover"].forEach(type => {
+
+    canvasArea.addEventListener(
+        type,
+        e => {
+            e.preventDefault();
+            canvasArea.classList.add("dragover");
+        }
+    );
+
+});
+
+
+["dragleave", "drop"].forEach(type => {
+
+    canvasArea.addEventListener(
+        type,
+        e => {
+            e.preventDefault();
+            canvasArea.classList.remove("dragover");
+        }
+    );
+
+});
+
+
+canvasArea.addEventListener(
+    "drop",
+    e => {
+
+        const files =
+            [...e.dataTransfer.files];
+
+        const image =
+            files.find(
+                file =>
+                    file.type.startsWith("image/")
+            );
+
+        if (image) {
+            loadImageFile(image);
+        }
+    }
+);
+
+
+/* =========================
+   Canvas 座標
+========================= */
+
+function getCanvasPosition(event) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const scaleX =
+        canvas.width / rect.width;
+
+    const scaleY =
+        canvas.height / rect.height;
+
+    const x = Math.floor(
+        (event.clientX - rect.left) *
+        scaleX
+    );
+
+    const y = Math.floor(
+        (event.clientY - rect.top) *
+        scaleY
+    );
+
+    return {
+        x: clamp(x, 0, canvas.width - 1),
+        y: clamp(y, 0, canvas.height - 1)
+    };
+}
+
+
+/* =========================
+   吸取原圖顏色
+========================= */
+
+canvas.addEventListener(
+    "click",
+    event => {
+
+        if (!originalImageData) {
+            return;
+        }
+
+        const { x, y } =
+            getCanvasPosition(event);
+
+        const index =
+            (y * imageWidth + x) * 4;
+
+        const data =
+            originalImageData.data;
+
+        sourceColor = {
+            r: data[index],
+            g: data[index + 1],
+            b: data[index + 2],
+            a: data[index + 3]
+        };
+
+        const hex =
+            rgbToHex(
+                sourceColor.r,
+                sourceColor.g,
+                sourceColor.b
+            );
+
+        sourceHex.textContent = hex;
+
+        sourceRgb.textContent =
+            `RGB(${sourceColor.r}, ${sourceColor.g}, ${sourceColor.b})`;
+
+        sourcePreview.style.background = hex;
+
+        currentMode = "result";
+
+        updateModeButtons();
+        scheduleProcess();
+    }
+);
+
+
+/* =========================
+   滑鼠位置像素資訊
+========================= */
+
+canvas.addEventListener(
+    "mousemove",
+    event => {
+
+        if (!originalImageData) {
+            return;
+        }
+
+        const { x, y } =
+            getCanvasPosition(event);
+
+        const index =
+            (y * imageWidth + x) * 4;
+
+        const data =
+            originalImageData.data;
+
+        const r = data[index];
+        const g = data[index + 1];
+        const b = data[index + 2];
+        const a = data[index + 3];
+
+        const hex =
+            rgbToHex(r, g, b);
+
+        cursorInfo.innerHTML =
+            `
+            <span
+                class="pixel-color"
+                style="background:${hex};"
+            ></span>
+            ${hex}
+            &nbsp; RGB(${r}, ${g}, ${b})
+            <br>
+            X: ${x} &nbsp; Y: ${y}
+            &nbsp; A: ${a}
+            `;
+
+        cursorInfo.style.left =
+            (event.clientX + 15) + "px";
+
+        cursorInfo.style.top =
+            (event.clientY + 15) + "px";
+
+        cursorInfo.style.display =
+            "block";
+    }
+);
+
+
+canvas.addEventListener(
+    "mouseleave",
+    () => {
+        cursorInfo.style.display =
+            "none";
+    }
+);
+
+
+/* =========================
+   設定
+========================= */
+
+replacementColor.addEventListener(
+    "input",
+    () => {
+
+        const value =
+            replacementColor.value
+            .toUpperCase();
+
+        replacementPreview.style.background =
+            value;
+
+        replacementHex.textContent =
+            value;
+
+        scheduleProcess();
+    }
+);
+
+
+tolerance.addEventListener(
+    "input",
+    () => {
+
+        toleranceValue.textContent =
+            tolerance.value;
+
+        scheduleProcess();
+    }
+);
+
+
+expandEnabled.addEventListener(
+    "change",
+    () => {
+
+        if (expandEnabled.checked) {
+
+            expandControls.style.opacity = "1";
+            expandControls.style.pointerEvents =
+                "auto";
+
+        } else {
+
+            expandControls.style.opacity = ".45";
+            expandControls.style.pointerEvents =
+                "none";
+        }
+
+        scheduleProcess();
+    }
+);
+
+
+expandSlider.addEventListener(
+    "input",
+    () => {
+
+        expandRadius.value =
+            expandSlider.value;
+
+        scheduleProcess();
+    }
+);
+
+
+expandRadius.addEventListener(
+    "input",
+    () => {
+
+        let value =
+            Number(expandRadius.value);
+
+        value =
+            clamp(
+                Math.round(value || 1),
+                1,
+                50
+            );
+
+        expandRadius.value = value;
+        expandSlider.value = value;
+
+        scheduleProcess();
+    }
+);
+
+
+/* =========================
+   排程處理
+========================= */
+
+function scheduleProcess() {
+
+    if (
+        !originalImageData ||
+        !sourceColor
+    ) {
+        return;
+    }
+
+    downloadBtn.disabled = true;
+
+    if (processFrame) {
+        cancelAnimationFrame(processFrame);
+    }
+
+    processFrame =
+        requestAnimationFrame(() => {
+
+            processFrame = null;
+            processImage();
+
+        });
+}
+
+
+/* =========================
+   建立符合顏色 Mask
+========================= */
+
+function createMatchMask() {
+
+    const data =
+        originalImageData.data;
+
+    const totalPixels =
+        imageWidth * imageHeight;
+
+    const mask =
+        new Uint8Array(totalPixels);
+
+    const tol =
+        Number(tolerance.value);
+
+    let count = 0;
+
+    const sr = sourceColor.r;
+    const sg = sourceColor.g;
+    const sb = sourceColor.b;
+
+    for (
+        let pixel = 0,
+            i = 0;
+        pixel < totalPixels;
+        pixel++,
+            i += 4
+    ) {
+
+        const alpha =
+            data[i + 3];
+
+        if (alpha === 0) {
+            continue;
+        }
+
+        const dr =
+            Math.abs(
+                data[i] - sr
+            );
+
+        const dg =
+            Math.abs(
+                data[i + 1] - sg
+            );
+
+        const db =
+            Math.abs(
+                data[i + 2] - sb
+            );
+
+        /*
+            tolerance = 0
+            就代表 RGB 三個值都必須完全相同
+        */
+
+        if (
+            dr <= tol &&
+            dg <= tol &&
+            db <= tol
+        ) {
+            mask[pixel] = 1;
+            count++;
+        }
+    }
+
+    return {
+        mask,
+        count
+    };
+}
+
+
+/* =========================
+   高效率方形像素擴張
+========================= */
+
+function dilateMaskSquare(
+    mask,
+    width,
+    height,
+    radius
+) {
+
+    if (radius <= 0) {
+        return mask;
+    }
+
+    /*
+        第一階段：
+        水平方向擴張
+    */
+
+    const horizontal =
+        new Uint8Array(
+            width * height
+        );
+
+    const rowPrefix =
+        new Int32Array(
+            width + 1
+        );
+
+    for (
+        let y = 0;
+        y < height;
+        y++
+    ) {
+
+        rowPrefix[0] = 0;
+
+        const rowStart =
+            y * width;
+
+        for (
+            let x = 0;
+            x < width;
+            x++
+        ) {
+
+            rowPrefix[x + 1] =
+                rowPrefix[x] +
+                mask[rowStart + x];
+        }
+
+        for (
+            let x = 0;
+            x < width;
+            x++
+        ) {
+
+            const left =
+                Math.max(
+                    0,
+                    x - radius
+                );
+
+            const right =
+                Math.min(
+                    width - 1,
+                    x + radius
+                );
+
+            const count =
+                rowPrefix[right + 1] -
+                rowPrefix[left];
+
+            if (count > 0) {
+
+                horizontal[
+                    rowStart + x
+                ] = 1;
+            }
+        }
+    }
+
+
+    /*
+        第二階段：
+        垂直方向擴張
+
+        因為前面已經水平擴張，
+        所以最後會得到完整方形範圍。
+    */
+
+    const result =
+        new Uint8Array(
+            width * height
+        );
+
+    const columnPrefix =
+        new Int32Array(
+            height + 1
+        );
+
+    for (
+        let x = 0;
+        x < width;
+        x++
+    ) {
+
+        columnPrefix[0] = 0;
+
+        for (
+            let y = 0;
+            y < height;
+            y++
+        ) {
+
+            columnPrefix[y + 1] =
+                columnPrefix[y] +
+                horizontal[
+                    y * width + x
+                ];
+        }
+
+        for (
+            let y = 0;
+            y < height;
+            y++
+        ) {
+
+            const top =
+                Math.max(
+                    0,
+                    y - radius
+                );
+
+            const bottom =
+                Math.min(
+                    height - 1,
+                    y + radius
+                );
+
+            const count =
+                columnPrefix[
+                    bottom + 1
+                ] -
+                columnPrefix[top];
+
+            if (count > 0) {
+
+                result[
+                    y * width + x
+                ] = 1;
+            }
+        }
+    }
+
+    return result;
+}
+
+
+/* =========================
+   主圖片處理
+========================= */
+
+function processImage() {
+
+    if (
+        !originalImageData ||
+        !sourceColor
+    ) {
+        return;
+    }
+
+    showStatus("處理中…");
+
+    setTimeout(() => {
+
+        const {
+            mask: originalMask,
+            count: originalMatched
+        } = createMatchMask();
+
+
+        let finalMask =
+            originalMask;
+
+
+        if (expandEnabled.checked) {
+
+            const radius =
+                clamp(
+                    Number(
+                        expandRadius.value
+                    ) || 1,
+                    1,
+                    50
+                );
+
+            finalMask =
+                dilateMaskSquare(
+                    originalMask,
+                    imageWidth,
+                    imageHeight,
+                    radius
+                );
+        }
+
+
+        const output =
+            new Uint8ClampedArray(
+                originalImageData.data
+            );
+
+
+        const newColor =
+            hexToRgb(
+                replacementColor.value
+            );
+
+
+        let covered = 0;
+
+
+        for (
+            let pixel = 0,
+                i = 0;
+            pixel < finalMask.length;
+            pixel++,
+                i += 4
+        ) {
+
+            if (!finalMask[pixel]) {
+                continue;
+            }
+
+
+            /*
+                透明像素不硬改成不透明，
+                保留圖片原本 alpha。
+            */
+
+            if (output[i + 3] === 0) {
+                continue;
+            }
+
+
+            output[i] =
+                newColor.r;
+
+            output[i + 1] =
+                newColor.g;
+
+            output[i + 2] =
+                newColor.b;
+
+            covered++;
+        }
+
+
+        resultImageData =
+            new ImageData(
+                output,
+                imageWidth,
+                imageHeight
+            );
+
+
+        matchedCount.textContent =
+            formatNumber(
+                originalMatched
+            );
+
+        finalCount.textContent =
+            formatNumber(
+                covered
+            );
+
+
+        if (
+            currentMode === "result"
+        ) {
+
+            ctx.putImageData(
+                resultImageData,
+                0,
+                0
+            );
+        }
+
+
+        hideStatus();
+        downloadBtn.disabled = false;
+
+    }, 0);
+}
+
+
+/* =========================
+   原圖 / 結果切換
+========================= */
+
+showResult.addEventListener(
+    "click",
+    () => {
+
+        if (!resultImageData) {
+            return;
+        }
+
+        currentMode = "result";
+
+        ctx.putImageData(
+            resultImageData,
+            0,
+            0
+        );
+
+        updateModeButtons();
+    }
+);
+
+
+showOriginal.addEventListener(
+    "click",
+    () => {
+
+        if (!originalImageData) {
+            return;
+        }
+
+        currentMode = "original";
+
+        ctx.putImageData(
+            originalImageData,
+            0,
+            0
+        );
+
+        updateModeButtons();
+    }
+);
+
+
+function updateModeButtons() {
+
+    showResult.classList.toggle(
+        "active",
+        currentMode === "result"
+    );
+
+    showOriginal.classList.toggle(
+        "active",
+        currentMode === "original"
+    );
+}
+
+
+/* =========================
+   下載
+========================= */
+
+downloadBtn.addEventListener(
+    "click",
+    () => {
+
+        if (!resultImageData) {
+            return;
+        }
+
+        /*
+            使用獨立 Canvas，
+            確保不管目前正在看原圖
+            還是結果，下載的永遠都是處理後圖片。
+        */
+
+        const exportCanvas =
+            document.createElement(
+                "canvas"
+            );
+
+        exportCanvas.width =
+            imageWidth;
+
+        exportCanvas.height =
+            imageHeight;
+
+        const exportCtx =
+            exportCanvas.getContext(
+                "2d"
+            );
+
+        exportCtx.putImageData(
+            resultImageData,
+            0,
+            0
+        );
+
+
+        exportCanvas.toBlob(
+            blob => {
+
+                if (!blob) {
+                    return;
+                }
+
+                const url =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+                const a =
+                    document.createElement(
+                        "a"
+                    );
+
+                a.href = url;
+
+                a.download =
+                    "color-replaced.png";
+
+                document.body.appendChild(
+                    a
+                );
+
+                a.click();
+
+                a.remove();
+
+                setTimeout(
+                    () =>
+                        URL.revokeObjectURL(
+                            url
+                        ),
+                    1000
+                );
+
+            },
+            "image/png"
+        );
+    }
+);
+</script>
+
+</body>
+</html>
