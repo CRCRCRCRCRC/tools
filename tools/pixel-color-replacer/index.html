@@ -588,7 +588,7 @@ body.embed .app { min-height: 100dvh; border: 0; border-radius: 0; }
                         id="expandRadius"
                         class="number-input"
                         type="number"
-                        min="1"
+                        min="0"
                         max="50"
                         step="0.01"
                         value="1.00"
@@ -600,7 +600,7 @@ body.embed .app { min-height: 100dvh; border: 0; border-radius: 0; }
                 <input
                     id="expandSlider"
                     type="range"
-                    min="1"
+                    min="0"
                     max="50"
                     step="0.01"
                     value="1.00"
@@ -1243,11 +1243,14 @@ expandRadius.addEventListener(
             return;
         }
 
+        const parsed =
+            Number(expandRadius.value);
+
         const value =
             Math.round(
                 clamp(
-                    Number(expandRadius.value) || 1,
-                    1,
+                    Number.isFinite(parsed) ? parsed : 0,
+                    0,
                     50
                 ) * 100
             ) / 100;
@@ -1261,11 +1264,14 @@ expandRadius.addEventListener(
 expandRadius.addEventListener(
     "change",
     () => {
+        const parsed =
+            Number(expandRadius.value);
+
         const value =
             Math.round(
                 clamp(
-                    Number(expandRadius.value) || 1,
-                    1,
+                    Number.isFinite(parsed) ? parsed : 0,
+                    0,
                     50
                 ) * 100
             ) / 100;
@@ -1635,13 +1641,18 @@ function processImage() {
 
         if (expandEnabled.checked) {
 
+            const parsedRadius =
+                Number(
+                    expandRadius.value
+                );
+
             const radius =
                 Math.round(
                     clamp(
-                        Number(
-                            expandRadius.value
-                        ) || 1,
-                        1,
+                        Number.isFinite(parsedRadius)
+                            ? parsedRadius
+                            : 0,
+                        0,
                         50
                     ) * 100
                 ) / 100;
