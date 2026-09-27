@@ -163,8 +163,11 @@ export async function imageToolsCases({ cdp, evaluate, click, input, navigate, v
     const replaced = await pixels(await readFile(replacedPath), [[10, 10], [70, 10]]);
     assert.deepEqual(replaced.pixels[0], [18, 52, 86, 255]);
     assert.deepEqual(replaced.pixels[1], [0, 255, 0, 255]);
+    await click('#expandEnabled');
+    await input('#expandRadius', '1.25');
+    await until(() => evaluate(`(() => {const x=document.querySelector('#canvas').getContext('2d');const inner=[...x.getImageData(48,10,1,1).data],edge=[...x.getImageData(49,10,1,1).data];return document.querySelector('#expandRadius').value==='1.25' && inner[0]===18 && edge[0]===5 && edge[1]===204 && edge[2]===22;})()`), 'fractional pixel expansion');
     await screenshot('pixel-color-replacer-desktop', true);
-    console.log('PASS: perspective upload, quadrilateral region creation, pixel color selection/replacement/download.');
+    console.log('PASS: perspective upload, quadrilateral region creation, pixel color replacement/download, two-decimal expansion.');
 
     await navigate('tools/image-batch/index.html');
     const portrait = await fixture('portrait.png', 64, 96);

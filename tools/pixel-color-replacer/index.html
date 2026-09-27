@@ -590,7 +590,8 @@ body.embed .app { min-height: 100dvh; border: 0; border-radius: 0; }
                         type="number"
                         min="1"
                         max="50"
-                        value="1"
+                        step="0.01"
+                        value="1.00"
                     >
 
                     <span style="font-size:13px;">px</span>
@@ -601,13 +602,13 @@ body.embed .app { min-height: 100dvh; border: 0; border-radius: 0; }
                     type="range"
                     min="1"
                     max="50"
-                    step="1"
-                    value="1"
+                    step="0.01"
+                    value="1.00"
                     style="margin-top:10px;"
                 >
 
                 <div class="description">
-                    例如設為 3 px，原本被替換的像素向上、下、左、右與斜角最多再擴張 3 個像素。
+                    可輸入到小數點後兩位；小數部分會按比例混合最外圈像素。
                 </div>
             </div>
         </div>
@@ -1224,7 +1225,9 @@ expandSlider.addEventListener(
     () => {
 
         expandRadius.value =
-            expandSlider.value;
+            Number(
+                expandSlider.value
+            ).toFixed(2);
 
         scheduleProcess();
     }
@@ -1235,19 +1238,42 @@ expandRadius.addEventListener(
     "input",
     () => {
 
-        let value =
-            Number(expandRadius.value);
+        if (expandRadius.value === "") {
+            downloadBtn.disabled = true;
+            return;
+        }
 
-        value =
-            clamp(
-                Math.round(value || 1),
-                1,
-                50
-            );
+        const value =
+            Math.round(
+                clamp(
+                    Number(expandRadius.value) || 1,
+                    1,
+                    50
+                ) * 100
+            ) / 100;
 
-        expandRadius.value = value;
         expandSlider.value = value;
 
+        scheduleProcess();
+    }
+);
+
+expandRadius.addEventListener(
+    "change",
+    () => {
+        const value =
+            Math.round(
+                clamp(
+                    Number(expandRadius.value) || 1,
+                    1,
+                    50
+                ) * 100
+            ) / 100;
+
+        expandRadius.value =
+            value.toFixed(2);
+
+        expandSlider.value = value;
         scheduleProcess();
     }
 );
@@ -1519,6 +1545,68 @@ function dilateMaskSquare(
 
 
 /* =========================
+   支援小數半徑的像素擴張
+========================= */
+
+function dilateMaskFractional(
+    mask,
+    width,
+    height,
+    radius
+) {
+
+    const preciseRadius =
+        Math.round(radius * 100) / 100;
+
+    const whole =
+        Math.floor(preciseRadius);
+
+    const fraction =
+        preciseRadius - whole;
+
+    const inner =
+        dilateMaskSquare(
+            mask,
+            width,
+            height,
+            whole
+        );
+
+    if (fraction <= 0) {
+        return inner;
+    }
+
+    const outer =
+        dilateMaskSquare(
+            mask,
+            width,
+            height,
+            whole + 1
+        );
+
+    const result =
+        new Float32Array(
+            width * height
+        );
+
+    for (
+        let i = 0;
+        i < result.length;
+        i++
+    ) {
+        result[i] =
+            inner[i]
+                ? 1
+                : outer[i]
+                    ? fraction
+                    : 0;
+    }
+
+    return result;
+}
+
+
+/* =========================
    主圖片處理
 ========================= */
 
@@ -1548,16 +1636,18 @@ function processImage() {
         if (expandEnabled.checked) {
 
             const radius =
-                clamp(
-                    Number(
-                        expandRadius.value
-                    ) || 1,
-                    1,
-                    50
-                );
+                Math.round(
+                    clamp(
+                        Number(
+                            expandRadius.value
+                        ) || 1,
+                        1,
+                        50
+                    ) * 100
+                ) / 100;
 
             finalMask =
-                dilateMaskSquare(
+                dilateMaskFractional(
                     originalMask,
                     imageWidth,
                     imageHeight,
@@ -1604,14 +1694,26 @@ function processImage() {
             }
 
 
+            const strength =
+                finalMask[pixel];
+
             output[i] =
-                newColor.r;
+                Math.round(
+                    output[i] * (1 - strength) +
+                    newColor.r * strength
+                );
 
             output[i + 1] =
-                newColor.g;
+                Math.round(
+                    output[i + 1] * (1 - strength) +
+                    newColor.g * strength
+                );
 
             output[i + 2] =
-                newColor.b;
+                Math.round(
+                    output[i + 2] * (1 - strength) +
+                    newColor.b * strength
+                );
 
             covered++;
         }
